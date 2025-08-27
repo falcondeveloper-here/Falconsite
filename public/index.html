@@ -2,10 +2,208 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>My Test Site</title>
+  <title>Los Santos RP</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body, html {
+      height: 100%;
+      width: 100%;
+      font-family: Arial, sans-serif;
+      color: #fff;
+      overflow-x: hidden;
+    }
+
+    /* background with animation */
+    body {
+      background: url("https://cdn.discordapp.com/attachments/1410375985614028962/1410391130331156560/Picsart_25-07-10_08-43-09-251.jpg?ex=68b0d899&is=68af8719&hm=4d918e8da8add026fa9d6bf93d5fc1dce944c79a67082f7d7535e916ce8abf1c&") no-repeat center bottom;
+      background-size: cover;
+      animation: bgSlide 2s ease-out forwards;
+    }
+
+    @keyframes bgSlide {
+      0% {
+        background-position: center bottom;
+        opacity: 0;
+      }
+      100% {
+        background-position: center top;
+        opacity: 1;
+      }
+    }
+
+    /* Navbar */
+    nav {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 10;
+    }
+
+    nav .logo {
+      font-size: 20px;
+      font-weight: bold;
+      color: gold;
+    }
+
+    nav ul {
+      list-style: none;
+      display: flex;
+      gap: 20px;
+    }
+
+    nav ul li {
+      position: relative;
+    }
+
+    nav ul li a {
+      text-decoration: none;
+      color: white;
+      font-size: 14px;
+      transition: color 0.3s;
+    }
+
+    nav ul li a:hover {
+      color: gold;
+    }
+
+    /* Dropdown */
+    nav ul li ul {
+      display: none;
+      position: absolute;
+      background: rgba(0, 0, 0, 0.9);
+      padding: 10px;
+      border-radius: 5px;
+      top: 20px;
+      left: 0;
+      flex-direction: column;
+    }
+
+    nav ul li:hover ul {
+      display: flex;
+    }
+
+    /* Hero Section */
+    .hero {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      backdrop-filter: brightness(0.8);
+    }
+
+    .hero h1 {
+      font-size: 40px;
+      margin-bottom: 10px;
+      animation: fadeInUp 2s ease forwards;
+    }
+
+    .hero h1 span {
+      color: gold;
+    }
+
+    .hero p {
+      font-size: 16px;
+      opacity: 0.8;
+      animation: fadeInUp 3s ease forwards;
+    }
+
+    .discord-btn {
+      margin-top: 20px;
+      padding: 12px 25px;
+      border: none;
+      border-radius: 8px;
+      background: gold;
+      color: black;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.3s;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .discord-btn:hover {
+      transform: scale(1.05);
+    }
+
+    @keyframes fadeInUp {
+      0% {
+        transform: translateY(30px);
+        opacity: 0;
+      }
+      100% {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    /* Footer */
+    footer {
+      position: absolute;
+      bottom: 10px;
+      width: 100%;
+      text-align: center;
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      nav ul {
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        top: 60px;
+        right: 20px;
+        background: rgba(0, 0, 0, 0.9);
+        padding: 10px;
+        border-radius: 5px;
+      }
+      nav.active ul {
+        display: flex;
+      }
+    }
+  </style>
 </head>
 <body>
-  <h1>Hello, Render! 🚀</h1>
-  <p>If you see this page, everything is working fine 🎉</p>
+  <nav>
+    <div class="logo">Los Santos RP</div>
+    <ul>
+      <li><a href="#">Home</a></li>
+      <li><a href="#">Announcements</a></li>
+      <li><a href="#">Patch Notes</a></li>
+      <li>
+        <a href="#">Applications ▾</a>
+        <ul>
+          <li><a href="#">Staff Application</a></li>
+          <li><a href="#">Gang Application</a></li>
+          <li><a href="#">Faction Application</a></li>
+          <li><a href="#">Helper Application</a></li>
+        </ul>
+      </li>
+    </ul>
+  </nav>
+
+  <section class="hero">
+    <h1>Welcome to <span>Los Santos RP</span></h1>
+    <p>The most immersive SA:MP Roleplay experience.<br>Join now and live your second life in Los Santos.</p>
+    <a href="https://discord.gg/yYeWwgsfhD" class="discord-btn" target="_blank">Join our Discord</a>
+  </section>
+
+  <footer>
+    © 2025 Los Santos RP. All Rights Reserved.
+  </footer>
 </body>
-</html>
+                     </html>
