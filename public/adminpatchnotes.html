@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin - Patch Notes</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: #fff;
+      margin: 0;
+      padding: 0;
+    }
+    nav {
+      background: rgba(0,0,0,0.8);
+      padding: 15px;
+      display: flex;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    nav .logo {
+      font-weight: bold;
+      color: gold;
+    }
+    nav ul {
+      list-style: none;
+      display: flex;
+      gap: 15px;
+    }
+    nav ul li a {
+      text-decoration: none;
+      color: white;
+    }
+    nav ul li a:hover {
+      color: gold;
+    }
+    .container {
+      max-width: 600px;
+      margin: 30px auto;
+      padding: 20px;
+      background: rgba(0,0,0,0.6);
+      border-radius: 10px;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border: none;
+      border-radius: 5px;
+    }
+    button {
+      padding: 10px 20px;
+      background: gold;
+      border: none;
+      border-radius: 5px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button:hover {
+      background: orange;
+    }
+    #message {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="logo">Los Santos RP</div>
+    <ul>
+      <li><a href="/">Home</a></li>
+      <li><a href="/patch-notes">Patch Notes</a></li>
+      <li><a href="/admin-patch-notes">Admin</a></li>
+    </ul>
+  </nav>
+
+  <div class="container">
+    <h1>➕ Add Patch Note</h1>
+    <input type="text" id="title" placeholder="Title">
+    <textarea id="content" rows="5" placeholder="Content"></textarea>
+    <button onclick="addNote()">Add Note</button>
+    <p id="message"></p>
+  </div>
+
+  <script>
+    async function addNote() {
+      const title = document.getElementById("title").value;
+      const content = document.getElementById("content").value;
+      if (!title || !content) {
+        document.getElementById("message").innerText = "⚠️ Fill all fields!";
+        return;
+      }
+
+      const res = await fetch("/api/notes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title, content })
+      });
+
+      if (res.ok) {
+        document.getElementById("message").innerText = "✅ Note added!";
+        document.getElementById("title").value = "";
+        document.getElementById("content").value = "";
+      } else {
+        document.getElementById("message").innerText = "❌ Error adding note.";
+      }
+    }
+  </script>
+</body>
+</html>
