@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Dashboard</title>
+  <style>
+    body { font-family: Arial, sans-serif; background:#111; color:#fff; padding:20px; }
+    h1 { color:#FFD700; }
+    form { background:#222; padding:20px; border-radius:8px; max-width:500px; }
+    input, textarea { width:100%; padding:10px; margin-bottom:10px; border-radius:5px; border:none; }
+    button { padding:10px 20px; background:#FFD700; border:none; border-radius:5px; cursor:pointer; }
+    button:hover { background:#e6c200; }
+  </style>
+</head>
+<body>
+  <h1>Admin Dashboard</h1>
+  <form id="noteForm">
+    <input type="text" id="title" placeholder="Patch Title" required>
+    <textarea id="content" placeholder="Patch Content" rows="6" required></textarea>
+    <button type="submit">Add Patch Note</button>
+  </form>
+
+  <script>
+    document.getElementById("noteForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const title = document.getElementById("title").value;
+      const content = document.getElementById("content").value;
+
+      const res = await fetch("/api/notes", {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({title, content})
+      });
+
+      if(res.ok){
+        alert("✅ Patch Note Added!");
+        document.getElementById("noteForm").reset();
+      } else {
+        alert("❌ Error saving note");
+      }
+    });
+  </script>
+</body>
+</html>
