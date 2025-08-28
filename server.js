@@ -64,6 +64,18 @@ app.get("/admin-patch-notes", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "adminpatchnotes.html"));
 });
 
+app.get("/stats", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "stats.html"));
+});
+
+app.get("/aboutus", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "aboutus.html"));
+});
+
+app.get("/applications", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "applications.html"));
+});
+
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

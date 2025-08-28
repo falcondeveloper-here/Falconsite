@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Applications</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <style>
+    body {
+      background: url("background.jpg") no-repeat center center fixed;
+      background-size: cover;
+    }
+    .card {
+      backdrop-filter: blur(10px);
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+    }
+  </style>
+</head>
+<body class="text-white">
+
+  <!-- Navbar -->
+  <header class="bg-black bg-opacity-70 p-4 flex justify-between items-center">
+    <div class="flex items-center space-x-3">
+      <img src="logo.png" alt="Logo" class="h-10 w-10 rounded-full">
+      <h1 class="text-xl font-bold">Los Santos</h1>
+    </div>
+    <nav class="space-x-4">
+      <a href="/" class="hover:text-yellow-400">Home</a>
+      <a href="/patch-notes" class="hover:text-yellow-400">Patch Notes</a>
+      <a href="/stats" class="hover:text-yellow-400">Stats</a>
+      <a href="/aboutus" class="hover:text-yellow-400">About Us</a>
+      <a href="/applications" class="text-yellow-400 font-semibold underline">Applications</a>
+    </nav>
+  </header>
+
+  <!-- Title -->
+  <section class="text-center mt-10">
+    <h2 class="text-4xl font-bold">Applications</h2>
+    <p class="text-lg mt-2">Choose the application you want to submit</p>
+  </section>
+
+  <!-- Cards -->
+  <main class="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mt-10 p-6">
+    
+    <!-- Staff Application -->
+    <div class="card rounded-2xl p-6 text-center">
+      <h3 class="text-2xl font-bold mb-4">Staff Application</h3>
+      <p class="mb-4">Apply to become part of our staff team and help manage the community.</p>
+      <a href="#" class="bg-yellow-500 text-black px-4 py-2 rounded-lg font-semibold hover:bg-yellow-600">Apply Now</a>
+    </div>
+
+    <!-- Helper Application -->
+    <div class="card rounded-2xl p-6 text-center">
+      <h3 class="text-2xl font-bold mb-4">Helper Application</h3>
+      <p class="mb-4">Assist new players and provide guidance to improve their experience.</p>
+      <a href="#" class="bg-yellow-500 text-black px-4 py-2 rounded-lg font-semibold hover:bg-yellow-600">Apply Now</a>
+    </div>
+
+    <!-- Faction Application -->
+    <div class="card rounded-2xl p-6 text-center">
+      <h3 class="text-2xl font-bold mb-4">Faction Application</h3>
+      <p class="mb-4">Create or join a faction and take on responsibilities in Los Santos.</p>
+      <a href="#" class="bg-yellow-500 text-black px-4 py-2 rounded-lg font-semibold hover:bg-yellow-600">Apply Now</a>
+    </div>
+
+    <!-- Gang Application -->
+    <div class="card rounded-2xl p-6 text-center">
+      <h3 class="text-2xl font-bold mb-4">Gang Application</h3>
+      <p class="mb-4">Form your own gang and dominate the streets of Los Santos.</p>
+      <a href="#" class="bg-yellow-500 text-black px-4 py-2 rounded-lg font-semibold hover:bg-yellow-600">Apply Now</a>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-black bg-opacity-70 text-center p-4 mt-10">
+    <p>&copy; 2025 Los Santos. All rights reserved.</p>
+  </footer>
+
+</body>
+</html>

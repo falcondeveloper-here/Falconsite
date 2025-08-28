@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Los Santos RP — About Us</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+  <style>
+    /* ===== Reset & Base ===== */
+    *,*::before,*::after{box-sizing:border-box}
+    html,body{height:100%}
+    :root{
+      --glass: rgba(10,14,25,.72);
+      --glass-strong: rgba(5,8,16,.76);
+      --line: rgba(255,255,255,.06);
+      --muted: #cfd8e3;
+      --accent1:#ff7b00;
+      --accent2:#f0a500;
+      --green:#00b37e;
+      --teal:#3fe0c5;
+      --shadow: 0 20px 48px rgba(0,0,0,.45);
+      --radius: 16px;
+    }
+    body{
+      margin:0; color:#fff; background:#0b0f19;
+      font-family: ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial;
+      overflow-x:hidden;
+    }
+
+    /* ===== Background (ضع صورتك باسم los-santos-bg.jpg في /public) ===== */
+    .bg{
+      position:fixed; inset:0;
+      background:url("los-santos-bg.jpg") center/cover no-repeat;
+      z-index:-2;
+      transform:scale(1.02);
+      filter: saturate(1.05) brightness(.85);
+    }
+    .bg::after{
+      content:""; position:absolute; inset:0;
+      background: radial-gradient(ellipse at 20% -10%, rgba(255,140,0,.18), transparent 55%),
+                  linear-gradient(to bottom, rgba(0,0,0,.40), rgba(0,0,0,.55));
+    }
+
+    /* ===== Navbar ===== */
+    .nav{
+      position:sticky; top:0; z-index:30;
+      display:flex; align-items:center; justify-content:space-between; gap:16px;
+      padding:14px 22px; background:var(--glass-strong); backdrop-filter:blur(8px);
+      border-bottom:1px solid var(--line);
+    }
+    .brand{display:flex;align-items:center;gap:10px}
+    .brand img{width:28px;height:28px;object-fit:contain;filter:drop-shadow(0 2px 6px rgba(0,0,0,.5))}
+    .brand .name{font-weight:800;letter-spacing:.4px;text-transform:uppercase;font-size:15px}
+    .nav-links{display:flex;align-items:center;gap:22px}
+    .nav a{color:#fff;text-decoration:none;font-size:14.5px;opacity:.9;transition:opacity .2s,transform .2s}
+    .nav a:hover{opacity:1;transform:translateY(-1px)}
+    .btn-login{padding:8px 14px;border-radius:10px;background:linear-gradient(135deg,var(--accent2),var(--accent1));color:#111;font-weight:700;box-shadow:0 6px 18px rgba(240,165,0,.35)}
+    .toggle{display:none;width:42px;height:42px;border:1px solid rgba(255,255,255,.15);border-radius:10px;background:transparent;color:#fff}
+    .mobile{display:none;position:absolute;left:0;right:0;top:58px;background:rgba(5,8,16,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding:12px 18px}
+    .mobile a{display:block;padding:12px 2px}
+
+    /* ===== Header ===== */
+    .header{padding:56px 18px 10px; text-align:center}
+    .eyebrow{
+      display:inline-block; padding:6px 12px; border:1px solid var(--line);
+      border-radius:999px; background:rgba(255,255,255,.04); font-size:12px; letter-spacing:.6px;
+    }
+    .title{
+      margin:14px auto 8px;
+      font-size:clamp(24px,3.4vw,44px); font-weight:900; letter-spacing:.6px;
+      text-shadow:0 10px 30px rgba(0,0,0,.6);
+    }
+    .subtitle{opacity:.9;margin-top:8px;font-size:clamp(14px,2vw,16px)}
+
+    /* ===== Layout ===== */
+    .container{width:min(1100px,92%);margin:0 auto;padding:22px 0 70px}
+    .grid-2{display:grid;grid-template-columns:1.2fr .8fr;gap:18px;margin-top:24px}
+    .panel{
+      background:var(--glass); border:1px solid var(--line);
+      border-radius:var(--radius); padding:18px; backdrop-filter:blur(6px);
+      box-shadow: var(--shadow);
+    }
+    .panel h3{margin:0 0 10px;font-size:18px;display:flex;align-items:center;gap:10px}
+    .muted{color:var(--muted)}
+
+    /* cards */
+    .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:18px}
+    .card{
+      background:var(--glass); border:1px solid var(--line);
+      border-radius:var(--radius); padding:18px; backdrop-filter:blur(6px);
+      transition:transform .25s ease, box-shadow .25s ease, background .25s;
+    }
+    .card:hover{transform:translateY(-6px); box-shadow:var(--shadow)}
+    .kpi{font-size:28px;font-weight:900;margin-top:6px}
+
+    /* roles grid */
+    .roles{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+    .role-title{font-weight:900;margin:0 0 8px}
+    .pill{
+      display:inline-block;margin:6px 6px 0 0;padding:8px 12px;border-radius:999px;
+      border:1px solid var(--line); background:rgba(255,255,255,.04); font-weight:700
+    }
+
+    /* timeline */
+    .timeline{position:relative;padding-left:18px}
+    .timeline::before{content:"";position:absolute;left:6px;top:0;bottom:0;width:2px;background:rgba(255,255,255,.12);border-radius:2px}
+    .tl-item{position:relative;margin:14px 0;padding-left:10px}
+    .tl-item::before{
+      content:"";position:absolute;left:-3px;top:6px;width:10px;height:10px;border-radius:50%;
+      background:linear-gradient(135deg,var(--teal),var(--green)); box-shadow:0 0 0 3px rgba(255,255,255,.08)
+    }
+
+    /* FAQ (accordion) */
+    .faq .q{
+      width:100%; text-align:left; background:transparent; color:#fff;
+      border:1px solid var(--line); border-radius:12px; padding:14px 16px; cursor:pointer;
+      transition:background .2s;
+    }
+    .faq .q:hover{background:rgba(255,255,255,.04)}
+    .faq .a{max-height:0; overflow:hidden; transition:max-height .35s ease; padding:0 4px}
+
+    /* CTA */
+    .cta{
+      margin-top:22px; display:flex; align-items:center; justify-content:space-between; gap:18px;
+      background:linear-gradient(135deg, rgba(0,179,126,.15), rgba(63,224,197,.10));
+      border:1px solid var(--line); border-radius:var(--radius); padding:18px;
+    }
+    .cta .actions{display:flex; gap:10px; flex-wrap:wrap}
+    .btn{
+      display:inline-block; padding:10px 14px; border-radius:10px; text-decoration:none; font-weight:800;
+      background:linear-gradient(135deg,var(--accent2),var(--accent1)); color:#111;
+      box-shadow:0 6px 18px rgba(240,165,0,.35)
+    }
+    .btn-ghost{
+      display:inline-block; padding:10px 14px; border-radius:10px; text-decoration:none; font-weight:800;
+      border:1px solid var(--line); color:#fff
+    }
+
+    /* Footer + misc */
+    .footer{padding:28px;text-align:center;opacity:.78;font-size:13.5px}
+    .reveal{opacity:0; transform:translateY(14px); transition:opacity .6s ease, transform .6s ease}
+    .reveal.on{opacity:1; transform:none}
+
+    /* Responsive */
+    @media (max-width:1100px){
+      .cards{grid-template-columns:repeat(2,1fr)}
+      .roles{grid-template-columns:1fr}
+      .grid-2{grid-template-columns:1fr}
+    }
+    @media (max-width:980px){
+      .nav-links{display:none}
+      .toggle{display:inline-grid;place-items:center}
+    }
+  </style>
+</head>
+<body>
+  <div class="bg" aria-hidden="true"></div>
+
+  <!-- ===== Navbar ===== -->
+  <header class="nav">
+    <div class="brand">
+      <img src="los-santos-logo.png" alt="Los Santos Logo" />
+      <span class="name">Los Santos RP</span>
+    </div>
+    <nav class="nav-links">
+      <a href="index.html#home">Home</a>
+      <a href="aboutus.html" aria-current="page">About</a>
+      <a href="stats.html">Stats</a>
+      <a href="index.html#join">Join</a>
+      <a href="index.html#contact">Contact</a>
+      <a class="btn-login" href="#">Login</a>
+    </nav>
+    <button class="toggle" id="navToggle" aria-label="Open menu">☰</button>
+    <nav class="mobile" id="mobileMenu" aria-label="Mobile">
+      <a href="index.html#home">Home</a>
+      <a href="aboutus.html">About</a>
+      <a href="stats.html">Stats</a>
+      <a href="index.html#join">Join</a>
+      <a href="index.html#contact">Contact</a>
+      <a class="btn-login" href="#">Login</a>
+    </nav>
+  </header>
+
+  <!-- ===== Header ===== -->
+  <section class="header">
+    <span class="eyebrow">ABOUT US</span>
+    <h1 class="title">We Are Los Santos Roleplay</h1>
+    <p class="subtitle">Community-first servers, balanced economy, and immersive experiences — built by players, for players.</p>
+  </section>
+
+  <main class="container">
+    <!-- Intro + Quick facts -->
+    <section class="grid-2">
+      <article class="panel reveal">
+        <h3>🧭 Our Vision</h3>
+        <p class="muted">
+          We deliver a next-level roleplay experience in Los Santos — fair systems, active staff,
+          and a thriving ecosystem where legal and criminal paths both feel rewarding.
+        </p>
+
+        <div class="cards">
+          <div class="card">
+            <div>⚖️ Balanced Economy</div>
+            <div class="muted">Jobs, factions, and markets tuned for long-term progression.</div>
+          </div>
+          <div class="card">
+            <div>🛰️ Stable Infrastructure</div>
+            <div class="muted">Optimized server, anti-cheat and frequent updates.</div>
+          </div>
+          <div class="card">
+            <div>🤝 Community First</div>
+            <div class="muted">Transparent rules & staff who listen.</div>
+          </div>
+        </div>
+      </article>
+
+      <aside class="panel reveal">
+        <h3>📌 Quick Facts</h3>
+        <div class="card" style="margin-top:10px">
+          <div>Launch Year</div>
+          <div class="kpi">2025</div>
+          <div class="muted">Server started in 2025.</div>
+        </div>
+        <div class="card" style="margin-top:10px">
+          <div>Access</div>
+          <div class="kpi">No Whitelist</div>
+          <div class="muted">Open access — simple rules, instant play.</div>
+        </div>
+        <div class="card" style="margin-top:10px">
+          <div>Updates / Month</div>
+          <div class="kpi">8–12</div>
+          <div class="muted">Patch notes posted regularly.</div>
+        </div>
+      </aside>
+    </section>
+
+    <!-- Roles / Core Team -->
+    <section class="panel reveal" style="margin-top:18px">
+      <h3>👥 Core Team</h3>
+      <div class="roles" style="margin-top:6px">
+        <div class="card">
+          <p class="role-title">🏛️ Ownership</p>
+          <span class="pill">Arbi Ayhem</span>
+          <span class="pill">Lucifer</span>
+          <span class="pill">Mfyouzi</span>
+          <span class="pill">Bamba</span>
+        </div>
+        <div class="card">
+          <p class="role-title">🤝 Co-Owner</p>
+          <span class="pill">chm9m9</span>
+          <span class="pill">capa_piro</span>
+        </div>
+        <div class="card">
+          <p class="role-title">🎮 Game Developer</p>
+          <span class="pill">Kay</span>
+        </div>
+        <div class="card">
+          <p class="role-title">🕸️ Website Developer</p>
+          <span class="pill">Falcon</span>
+        </div>
+      </div>
+      <p class="muted" style="margin-top:12px">
+        Note: “Bel Tassira” not part of the core team list per current org structure.
+      </p>
+    </section>
+
+    <!-- Timeline (starting 2025) -->
+    <section class="panel reveal" style="margin-top:18px">
+      <h3>📅 Server Journey</h3>
+      <div class="timeline">
+        <div class="tl-item">
+          <strong>2025 — Launch</strong> — Core framework online, open access (no whitelist), first community events.
+        </div>
+        <div class="tl-item">
+          <strong>2025 Q3–Q4</strong> — Economy tuning, faction tools, improved UI/UX, anti-cheat integration.
+        </div>
+        <div class="tl-item">
+          <strong>2026</strong> — Seasonal content, skills & progression expansion, performance pass.
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="panel faq reveal" style="margin-top:18px">
+      <h3>❓ FAQ</h3>
+
+      <button class="q" aria-expanded="false">How do I join the server?</button>
+      <div class="a"><p class="muted">
+        It’s open access — no whitelist. Join our Discord for IP and rules, then hop in.
+      </p></div>
+
+      <button class="q" aria-expanded="false" style="margin-top:10px">Is pay-to-win allowed?</button>
+      <div class="a"><p class="muted">
+        No. We only offer cosmetics/support tiers. No gameplay advantages for sale.
+      </p></div>
+
+      <button class="q" aria-expanded="false" style="margin-top:10px">Do you wipe progress?</button>
+      <div class="a"><p class="muted">
+        Seasonal soft resets may happen with notice; main assets are usually preserved.
+      </p></div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta reveal">
+      <div>
+        <h3 style="margin:0 0 6px">Start your story today</h3>
+        <div class="muted">Choose your path — legal or criminal — and build your legacy in Los Santos.</div>
+      </div>
+      <div class="actions">
+        <a class="btn" href="index.html#join">Join Now</a>
+        <a class="btn-ghost" href="patch-notes.html">Patch Notes</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">© <span id="year"></span> Los Santos Roleplay. All rights reserved.</footer>
+
+  <!-- ===== Scripts ===== -->
+  <script>
+    // Mobile menu
+    const navToggle = document.getElementById('navToggle');
+    const mobileMenu = document.getElementById('mobileMenu');
+    navToggle.addEventListener('click', () => {
+      const open = mobileMenu.style.display === 'block';
+      mobileMenu.style.display = open ? 'none' : 'block';
+      navToggle.setAttribute('aria-expanded', String(!open));
+    });
+
+    // Year
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // Reveal on scroll
+    const io = new IntersectionObserver((entries)=>{
+      entries.forEach(e=>{
+        if(e.isIntersecting){ e.target.classList.add('on'); io.unobserve(e.target); }
+      });
+    },{threshold:.1});
+    document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+    // FAQ accordion
+    const faqQs = document.querySelectorAll('.faq .q');
+    faqQs.forEach((btn)=>{
+      btn.addEventListener('click', ()=>{
+        const open = btn.getAttribute('aria-expanded') === 'true';
+        btn.setAttribute('aria-expanded', String(!open));
+        const panel = btn.nextElementSibling;
+        panel.style.maxHeight = open ? '0' : panel.scrollHeight + 'px';
+      });
+    });
+
+    // Pre-expand first FAQ
+    if(faqQs[0]) faqQs[0].click();
+  </script>
+</body>
+</html>
