@@ -12,15 +12,13 @@ const __dirname = path.dirname(__filename);
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-// Serve static files from 'public' folder
 app.use(express.static(path.join(__dirname, 'public')));
 
-// In-memory storage for staff and helper applications
+// In-memory storage (replace with DB in production)
 const staffApplications = [];
 const helperApplications = [];
 
-// Staff application routes (assuming you have these files)
+// Staff application routes
 app.get('/staff-application', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'staff-application.html'));
 });
@@ -75,7 +73,7 @@ app.get('/api/helper-applications', (req, res) => {
   res.json(helperApplications.slice().sort((a,b) => new Date(b.date) - new Date(a.date)));
 });
 
-// Homepage or other routes
+// Homepage route (optional)
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
