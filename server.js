@@ -1,6 +1,7 @@
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import bcrypt from 'bcrypt';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -15,12 +16,74 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // In-memory storage (replace with DB in production)
+const users = [];
 const staffApplications = [];
 const helperApplications = [];
 const gangApplications = [];
 const factionApplications = [];
 
-// Staff application routes
+// Helper function to find user by username
+function findUser (username) {
+  return users.find(u => u.username.toLowerCase() === username.toLowerCase());
+}
+
+// --- Signup/Login Routes ---
+
+// Signup page
+app.get('/signup', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'signup.html'));
+});
+
+// Login page
+app.get('/login', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'login.html'));
+});
+
+// Signup API
+app.post('/api/signup', async (req, res) => {
+  const { username, email, password, confirmPassword } = req.body;
+  if (!username || !email || !password || !confirmPassword) {
+    return res.status(400).json({ error: 'All fields are required.' });
+  }
+  if (password !== confirmPassword) {
+    return res.status(400).json({ error: 'Passwords do not match.' });
+  }
+  if (findUser (username)) {
+    return res.status(400).json({ error: 'Username already taken.' });
+  }
+  try {
+    const hashedPassword = await bcrypt.hash(password, 10);
+    users.push({ username, email, password: hashedPassword, createdAt: new Date().toISOString() });
+    res.status(201).json({ message: 'User  registered successfully.' });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error.' });
+  }
+});
+
+// Login API
+app.post('/api/login', async (req, res) => {
+  const { username, password } = req.body;
+  if (!username || !password) {
+    return res.status(400).json({ error: 'Username and password are required.' });
+  }
+  const user = findUser (username);
+  if (!user) {
+    return res.status(400).json({ error: 'Invalid username or password.' });
+  }
+  try {
+    const match = await bcrypt.compare(password, user.password);
+    if (!match) {
+      return res.status(400).json({ error: 'Invalid username or password.' });
+    }
+    // For demo, just respond success (no session management here)
+    res.json({ message: `Welcome back, ${user.username}!` });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error.' });
+  }
+});
+
+// --- Staff Application Routes ---
+
 app.get('/staff-application', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'staff-application.html'));
 });
@@ -48,7 +111,8 @@ app.get('/api/staff-applications', (req, res) => {
   res.json(staffApplications.slice().sort((a,b) => new Date(b.date) - new Date(a.date)));
 });
 
-// Helper application routes
+// --- Helper Application Routes ---
+
 app.get('/helper-application', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'helper-application.html'));
 });
@@ -75,7 +139,8 @@ app.get('/api/helper-applications', (req, res) => {
   res.json(helperApplications.slice().sort((a,b) => new Date(b.date) - new Date(a.date)));
 });
 
-// Gang application routes
+// --- Gang Application Routes ---
+
 app.get('/gang-application', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'gang-application.html'));
 });
@@ -103,7 +168,8 @@ app.get('/api/gang-applications', (req, res) => {
   res.json(gangApplications.slice().sort((a,b) => new Date(b.date) - new Date(a.date)));
 });
 
-// Faction application routes
+// --- Faction Application Routes ---
+
 app.get('/faction-application', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'faction-application.html'));
 });
