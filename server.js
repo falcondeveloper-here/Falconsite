@@ -18,6 +18,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 const staffApplications = [];
 const helperApplications = [];
 const gangApplications = [];
+const factionApplications = [];
 
 // Staff application routes
 app.get('/staff-application', (req, res) => {
@@ -100,6 +101,34 @@ app.post('/api/gang-applications', (req, res) => {
 });
 app.get('/api/gang-applications', (req, res) => {
   res.json(gangApplications.slice().sort((a,b) => new Date(b.date) - new Date(a.date)));
+});
+
+// Faction application routes
+app.get('/faction-application', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'faction-application.html'));
+});
+app.get('/faction-applications-view', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'faction-applications-view.html'));
+});
+app.post('/api/faction-applications', (req, res) => {
+  const { username, age, discord, factionName, experience, motivation } = req.body;
+  if (!username || !age || !discord || !factionName || !experience || !motivation) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+  const application = {
+    username,
+    age,
+    discord,
+    factionName,
+    experience,
+    motivation,
+    date: new Date().toISOString()
+  };
+  factionApplications.push(application);
+  res.status(201).json({ message: 'Faction application submitted' });
+});
+app.get('/api/faction-applications', (req, res) => {
+  res.json(factionApplications.slice().sort((a,b) => new Date(b.date) - new Date(a.date)));
 });
 
 // Homepage route (optional)
