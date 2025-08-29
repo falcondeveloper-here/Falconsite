@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Los Santos RP — Staff Application</title>
+  <style>
+    body {
+      margin:0; font-family:system-ui, sans-serif; background:#0b0f19; color:#fff;
+    }
+    .bg { position:fixed; inset:0; background:url("los-santos-bg.jpg") center/cover no-repeat; z-index:-1; }
+    .bg::after { content:""; position:absolute; inset:0;
+      background:linear-gradient(to bottom, rgba(0,0,0,.5), rgba(0,0,0,.7)); }
+    .nav {
+      display:flex; justify-content:space-between; align-items:center;
+      padding:14px 22px; background:rgba(5,8,16,.8); backdrop-filter:blur(8px);
+      border-bottom:1px solid rgba(255,255,255,.1);
+    }
+    .nav a { color:#fff; text-decoration:none; margin-left:18px; font-size:14px; opacity:.9; }
+    .nav a:hover { opacity:1; }
+    .container { width:min(600px,90%); margin:40px auto; }
+    .panel {
+      background:rgba(10,14,25,.72); border:1px solid rgba(255,255,255,.08);
+      border-radius:16px; padding:22px; box-shadow:0 20px 48px rgba(0,0,0,.45);
+    }
+    h3 { margin-top:0; }
+    label { display:block; margin-top:14px; font-weight:600; }
+    input, textarea {
+      width:100%; padding:10px; border-radius:10px; border:1px solid rgba(255,255,255,.15);
+      background:rgba(255,255,255,.05); color:#fff; margin-top:6px; resize:vertical;
+    }
+    button {
+      margin-top:18px; width:100%; padding:12px; border:none; border-radius:12px;
+      font-weight:700; font-size:15px; cursor:pointer;
+      background:linear-gradient(135deg, #f0a500, #ff7b00); color:#111;
+      box-shadow:0 6px 18px rgba(240,165,0,.35);
+    }
+    button:hover { opacity:.9; }
+    .muted { opacity:.8; font-size:14px; margin-top:10px; text-align:center; }
+  </style>
+</head>
+<body>
+  <div class="bg"></div>
+  <header class="nav">
+    <div><strong>Los Santos RP</strong></div>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="aboutus.html">About</a>
+      <a href="staff-application.html" aria-current="page">Apply</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section class="panel">
+      <h3>📋 Staff Application Form</h3>
+      <form id="applicationForm">
+        <label>Name</label>
+        <input type="text" name="name" required>
+
+        <label>Age</label>
+        <input type="number" name="age" required>
+
+        <label>Discord</label>
+        <input type="text" name="discord" required>
+
+        <label>Role Applying For</label>
+        <input type="text" name="role" required>
+
+        <label>Experience</label>
+        <textarea name="experience" required></textarea>
+
+        <label>Motivation</label>
+        <textarea name="motivation" required></textarea>
+
+        <button type="submit">Submit Application</button>
+      </form>
+      <p id="responseMsg" class="muted"></p>
+    </section>
+  </main>
+
+  <script>
+    const form = document.getElementById("applicationForm");
+    const msg = document.getElementById("responseMsg");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const data = Object.fromEntries(new FormData(form).entries());
+      try {
+        const res = await fetch("/api/staff-applications", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data)
+        });
+        const result = await res.json();
+        if (res.ok) {
+          msg.textContent = "✅ Application submitted successfully!";
+          form.reset();
+        } else {
+          msg.textContent = "❌ Error: " + result.error;
+        }
+      } catch (err) {
+        msg.textContent = "❌ Server error.";
+      }
+    });
+  </script>
+</body>
+</html>
