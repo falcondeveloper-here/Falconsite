@@ -17,6 +17,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 // In-memory storage (replace with DB in production)
 const staffApplications = [];
 const helperApplications = [];
+const gangApplications = [];
 
 // Staff application routes
 app.get('/staff-application', (req, res) => {
@@ -71,6 +72,34 @@ app.post('/api/helper-applications', (req, res) => {
 });
 app.get('/api/helper-applications', (req, res) => {
   res.json(helperApplications.slice().sort((a,b) => new Date(b.date) - new Date(a.date)));
+});
+
+// Gang application routes
+app.get('/gang-application', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'gang-application.html'));
+});
+app.get('/gang-applications-view', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'gang-applications-view.html'));
+});
+app.post('/api/gang-applications', (req, res) => {
+  const { username, age, discord, gangName, experience, motivation } = req.body;
+  if (!username || !age || !discord || !gangName || !experience || !motivation) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+  const application = {
+    username,
+    age,
+    discord,
+    gangName,
+    experience,
+    motivation,
+    date: new Date().toISOString()
+  };
+  gangApplications.push(application);
+  res.status(201).json({ message: 'Gang application submitted' });
+});
+app.get('/api/gang-applications', (req, res) => {
+  res.json(gangApplications.slice().sort((a,b) => new Date(b.date) - new Date(a.date)));
 });
 
 // Homepage route (optional)
