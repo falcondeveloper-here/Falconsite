@@ -191,4 +191,40 @@
       const container = document.getElementById('applicationsContainer');
       const noAppsMsg = document.getElementById('noAppsMsg');
       try {
-        const response = await fetch
+        const response = await fetch('/api/gang-applications');
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const applications = await response.json();
+
+        if (applications.length === 0) {
+          noAppsMsg.style.display = 'block';
+          container.innerHTML = '';
+          return;
+        } else {
+          noAppsMsg.style.display = 'none';
+        }
+
+        container.innerHTML = ''; // Clear container
+
+        // applications are sorted newest first by server
+        applications.forEach((app, index) => {
+          const appDiv = document.createElement('div');
+          appDiv.className = 'application';
+          appDiv.innerHTML = `
+            <h3>#${index + 1} - ${app.username} (Age: ${app.age})</h3>
+            <p><strong>Discord:</strong> ${app.discord}</p>
+            <p><strong>Gang Name:</strong> ${app.gangName}</p>
+            <p><strong>Previous Experience:</strong><br>${app.experience}</p>
+            <p><strong>Motivation:</strong><br>${app.motivation}</p>
+            <p><em>Submitted: ${new Date(app.date).toLocaleString()}</em></p>
+          `;
+          container.appendChild(appDiv);
+        });
+      } catch (error) {
+        container.innerHTML = `<p style="color:#ff5555; text-align:center; margin-top:40px; font-weight:bold;">Error loading applications: ${error.message}</p>`;
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', loadApplications);
+  </script>
+</body>
+</html>
