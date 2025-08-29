@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Login - Los Santos RP</title>
+  <style>
+    /* Same styling as signup for consistency */
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, Roboto, Arial, sans-serif;
+      background: #0b0f19;
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    .bg {
+      position: fixed; inset: 0;
+      background: url('los-santos-bg.jpg') center/cover no-repeat;
+      z-index: -3;
+      filter: brightness(0.5);
+    }
+    .container {
+      background: rgba(10,14,25,0.85);
+      border-radius: 16px;
+      padding: 40px 30px;
+      max-width: 400px;
+      width: 100%;
+      box-shadow: 0 0 20px #f0a500aa;
+      backdrop-filter: blur(8px);
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 24px;
+      color: #f0a500;
+      font-weight: 800;
+      letter-spacing: 1px;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+    label {
+      font-size: 14px;
+      opacity: 0.9;
+      margin-bottom: 6px;
+      display: block;
+    }
+    input {
+      padding: 12px 14px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.08);
+      color: #fff;
+      font-size: 14px;
+      outline-offset: 2px;
+      transition: border-color 0.2s;
+    }
+    input:focus {
+      border-color: #f0a500;
+      background: rgba(255,255,255,0.15);
+    }
+    button {
+      padding: 14px;
+      border-radius: 12px;
+      border: none;
+      background: linear-gradient(135deg,#f0a500,#ff7b00);
+      color: #111;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(255,140,0,0.35);
+      transition: transform 0.2s;
+    }
+    button:hover {
+      transform: translateY(-2px) scale(1.02);
+    }
+    .message {
+      margin-top: 12px;
+      font-size: 14px;
+      text-align: center;
+      min-height: 20px;
+    }
+    .message.error {
+      color: #ff5555;
+    }
+    .message.success {
+      color: #aaffaa;
+    }
+    .footer {
+      text-align: center;
+      margin-top: 30px;
+      font-size: 13px;
+      opacity: 0.7;
+    }
+    a {
+      color: #f0a500;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="bg"></div>
+  <div class="container">
+    <h2>Login</h2>
+    <form id="loginForm" novalidate>
+      <label for="username">Username</label>
+      <input id="username" name="username" type="text" required autocomplete="username" />
+
+      <label for="password">Password</label>
+      <input id="password" name="password" type="password" required autocomplete="current-password" />
+
+      <button type="submit">Log In</button>
+      <div class="message" id="message"></div>
+    </form>
+    <p style="text-align:center; margin-top: 16px;">
+      Don't have an account? <a href="/signup">Sign up</a>
+    </p>
+  </div>
+
+  <script>
+    const form = document.getElementById('loginForm');
+    const messageEl = document.getElementById('message');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      messageEl.textContent = '';
+      messageEl.className = 'message';
+
+      const formData = new FormData(form);
+      const data = Object.fromEntries(formData.entries());
+
+      try {
+        const res = await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        const result = await res.json();
+        if (res.ok) {
+          messageEl.textContent = result.message;
+          messageEl.classList.add('success');
+          form.reset();
+          // You can redirect or do something else here
+        } else {
+          messageEl.textContent = result.error || 'Login failed.';
+          messageEl.classList.add('error');
+        }
+      } catch (err) {
+        messageEl.textContent = 'Network error.';
+        messageEl.classList.add('error');
+      }
+    });
+  </script>
+</body>
+</html>
