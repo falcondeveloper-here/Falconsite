@@ -173,8 +173,8 @@
       <h2>Staff Application Form</h2>
       <form id="staffForm">
         <div>
-          <label for="name">Full Name</label>
-          <input id="name" name="name" required />
+          <label for="username">Full Name</label>
+          <input id="username" name="username" required />
         </div>
         <div>
           <label for="age">Age</label>
@@ -185,12 +185,16 @@
           <input id="discord" name="discord" required />
         </div>
         <div>
+          <label for="role">Position Applying For</label>
+          <input id="role" name="role" required />
+        </div>
+        <div>
           <label for="experience">Previous Experience</label>
           <textarea id="experience" name="experience" required></textarea>
         </div>
         <div>
-          <label for="reason">Why do you want to join staff?</label>
-          <textarea id="reason" name="reason" required></textarea>
+          <label for="motivation">Why do you want to join staff?</label>
+          <textarea id="motivation" name="motivation" required></textarea>
         </div>
         <button type="submit">Submit Application</button>
       </form>
@@ -218,16 +222,20 @@
       e.preventDefault();
       const data = Object.fromEntries(new FormData(e.target).entries());
 
-      const res = await fetch("/api/staff-applications", {
-        method: "POST",
-        headers: {"Content-Type":"application/json"},
-        body: JSON.stringify(data)
-      });
-      if(res.ok){
-        alert("Application submitted successfully!");
-        e.target.reset();
-      } else {
-        alert("Error submitting application.");
+      try {
+        const res = await fetch("/api/staff-applications", {
+          method: "POST",
+          headers: {"Content-Type":"application/json"},
+          body: JSON.stringify(data)
+        });
+        if(res.ok){
+          alert("Application submitted successfully!");
+          e.target.reset();
+        } else {
+          alert("Error submitting application.");
+        }
+      } catch (err) {
+        alert("Network error submitting application.");
       }
     });
   </script>
