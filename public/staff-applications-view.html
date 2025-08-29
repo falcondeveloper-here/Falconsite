@@ -7,7 +7,14 @@
 
   <style>
     , ::before, *::after { box-sizing: border-box; }
-    html, body { height: 100%; margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji", "Segoe UI Emoji"; color: #fff; background: #0b0f19; overflow-x: hidden; }
+    html, body {
+      height: 100%;
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      color: #fff;
+      background: #0b0f19;
+      overflow-x: hidden;
+    }
     .bg {
       position: fixed; inset: 0;
       background: url('los-santos-bg.jpg') center/cover no-repeat;
@@ -194,20 +201,27 @@
           noApplicationsMessage.style.display = 'block';
         } else {
           noApplicationsMessage.style.display = 'none';
-          data.forEach(app => {
+          data.forEach((app, index) => {
             const card = document.createElement('article');
             card.className = 'card reveal';
 
+            const number = index + 1; // 1-based numbering
             const name = app.username || 'Unknown Applicant';
-            const position = app.role || 'Unknown Position';
-            const message = app.motivation || 'No message provided.';
+            const age = app.age || 'N/A';
+            const discord = app.discord || 'N/A';
+            const position = app.role || 'N/A';
+            const experience = app.experience || 'N/A';
+            const motivation = app.motivation || 'N/A';
             const date = app.date ? new Date(app.date).toLocaleDateString() : 'Unknown date';
 
             card.innerHTML = `
-              <h3>👤 ${name}</h3>
-              <p><strong>Position:</strong> ${position}</p>
-              <p><strong>Submitted:</strong> ${date}</p>
-              <p>${message}</p>
+              <h3>#${number} - ${name}</h3>
+              <p><strong>Age:</strong> ${age}</p>
+              <p><strong>Discord:</strong> ${discord}</p>
+              <p><strong>Position Applying For:</strong> ${position}</p>
+              <p><strong>Previous Experience:</strong><br>${experience}</p>
+              <p><strong>Motivation:</strong><br>${motivation}</p>
+              <p><em>Submitted on: ${date}</em></p>
             `;
             applicationsGrid.appendChild(card);
             io.observe(card);
