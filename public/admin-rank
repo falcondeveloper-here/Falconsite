@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin Rank Management - Los Santos RP</title>
+  <style>
+    /* Consistent styling */
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, Roboto, Arial, sans-serif;
+      background: #0b0f19;
+      color: #fff;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .bg {
+      position: fixed; inset: 0;
+      background: url('los-santos-bg.jpg') center/cover no-repeat;
+      z-index: -3;
+      filter: brightness(0.5);
+    }
+    header {
+      margin-bottom: 20px;
+      text-align: center;
+      color: #f0a500;
+      font-weight: 800;
+      font-size: 24px;
+      letter-spacing: 1px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: rgba(10,14,25,0.85);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 0 20px #f0a500aa;
+    }
+    th, td {
+      padding: 12px 15px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      text-align: left;
+      vertical-align: middle;
+    }
+    th {
+      background: #1a1f36;
+      font-weight: 700;
+    }
+    tr:last-child td {
+      border-bottom: none;
+    }
+    .roles-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    label {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 13px;
+      cursor: pointer;
+      user-select: none;
+    }
+    input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+    }
+    button.save-btn {
+      background: linear-gradient(135deg,#f0a500,#ff7b00);
+      border: none;
+      border-radius: 8px;
+      padding: 6px 14px;
+      color: #111;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(255,140,0,0.35);
+      transition: transform 0.2s;
+    }
+    button.save-btn:hover {
+      transform: translateY(-2px) scale(1.05);
+    }
+    .message {
+      margin-top: 12px;
+      font-size: 14px;
+      text-align: center;
+      min-height: 20px;
+    }
+    .message.error {
+      color: #ff5555;
+    }
+    .message.success {
+      color: #aaffaa;
+    }
+    .logout-btn {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #f0a500;
+      border: none;
+      border-radius: 12px;
+      padding: 8px 16px;
+      font-weight: 700;
+      cursor: pointer;
+      color: #111;
+      box-shadow: 0 4px 12px rgba(255,140,0,0.35);
+      transition: background-color 0.3s;
+    }
+    .logout-btn:hover {
+      background: #ff7b00;
+    }
+  </style>
+</head>
+<body>
+  <div class="bg"></div>
+  <header>Admin Rank Management</header>
+  <button class="logout-btn" id="logoutBtn">Logout</button>
+  <table>
+    <thead>
+      <tr>
+        <th>Username</th>
+        <th>Email</th>
+        <th>Roles</th>
+        <th>Created At</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="usersTableBody">
+      <tr><td colspan="5" style="text-align:center;">Loading users...</td></tr>
+    </tbody>
+  </table>
+  <div class="message" id="message"></div>
+
+  <script>
+    const rolesList = ['Ownership', 'Developer', 'Staff', 'Team', 'GangMode', 'FactionMode', 'HelperMode', 'Ap'];
+    const usersTableBody = document.getElementById('usersTableBody');
+    const messageEl = document.getElementById('message');
+    const logoutBtn = document.getElementById('logoutBtn');
+
+    logoutBtn.addEventListener('click', async () => {
+      try {
+        const res = await fetch('/api/logout', { method: 'POST' });
+        if (res.ok) {
+          window.location.href = '/login';
+        }
+      } catch {
+        alert('Logout failed');
+      }
+    });
+
+    async function fetchUsers() {
+      messageEl.textContent = '';
+      try {
+        const res = await fetch('/api/admin/users');
+        if (!res.ok) throw new Error('Failed to fetch users');
+        const users = await res.json();
+        renderUsers(users);
+      } catch (err) {
+        usersTableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#ff5555;">${err.message}</td></tr>`;
+      }
+    }
+
+    function renderUsers(users) {
+      if (users.length === 0) {
+        usersTableBody.innerHTML = `<tr><td colspan="5" style="text-align:center;">No users found.</td></tr>`;
+        return;
+      }
+      usersTableBody.innerHTML = '';
+      users.forEach(user => {
+        const tr = document.createElement('tr');
+
+        // Username
+        const tdUsername = document.createElement('td');
+        tdUsername.textContent = user.username;
+        tr.appendChild(tdUsername);
+
+        // Email
+        const tdEmail = document.createElement('td');
+        tdEmail.textContent = user.email;
+        tr.appendChild(tdEmail);
+
+        // Roles (checkboxes)
+        const tdRoles = document.createElement('td');
+        const rolesContainer = document.createElement('div');
+        rolesContainer.className = 'roles-container';
+
+        rolesList.forEach(role => {
+          const label = document.createElement('label');
+          const checkbox = document.createElement('input');
+          checkbox.type = 'checkbox';
+          checkbox.value = role;
+          checkbox.checked = user.roles.includes(role);
+          label.appendChild(checkbox);
+          label.appendChild(document.createTextNode(role));
+          rolesContainer.appendChild(label);
+        });
+        tdRoles.appendChild(rolesContainer);
+        tr.appendChild(tdRoles);
+
+        // Created At
+        const tdCreated = document.createElement('td');
+        tdCreated.textContent = new Date(user.createdAt).toLocaleString();
+        tr.appendChild(tdCreated);
+
+        // Actions (Save button)
+        const tdActions = document.createElement('td');
+        const saveBtn = document.createElement('button');
+        saveBtn.textContent = 'Save';
+        saveBtn.className = 'save-btn';
+        saveBtn.addEventListener('click', () => saveRoles(user.username, rolesContainer));
+        tdActions.appendChild(saveBtn);
+        tr.appendChild(tdActions);
+
+        usersTableBody.appendChild(tr);
+      });
+    }
+
+    async function saveRoles(username, rolesContainer) {
+      messageEl.textContent = '';
+      const checkedRoles = Array.from(rolesContainer.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value);
+      try {
+        const res = await fetch(`/api/admin/users/${encodeURIComponent(username)}/roles`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ roles: checkedRoles })
+        });
+        const result = await res.json();
+        if (res.ok) {
+          messageEl.textContent = `Roles updated for ${username}`;
+          messageEl.className = 'message success';
+        } else {
+          messageEl.textContent = result.error || 'Failed to update roles';
+          messageEl.className = 'message error';
+        }
+      } catch (err) {
+        messageEl.textContent = 'Network error';
+        messageEl.className = 'message error';
+      }
+    }
+
+    // Initial load
+    fetchUsers();
+  </script>
+</body>
+</html>
