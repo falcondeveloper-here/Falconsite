@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin Login</title>
+  <style>
+    body {
+      background: #0b0f19;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      display: flex;
+      height: 100vh;
+      justify-content: center;
+      align-items: center;
+      margin: 0;
+    }
+    .login-container {
+      background: #1a1f36;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 20px #f0a500aa;
+      width: 320px;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #f0a500;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+      border: none;
+      font-size: 16px;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      background: #f0a500;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+      color: #111;
+      transition: background-color 0.3s;
+    }
+    button:hover {
+      background: #ffb347;
+    }
+    #message {
+      margin-top: 10px;
+      text-align: center;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <h2>Admin Login</h2>
+    <input type="text" id="username" placeholder="Username" autocomplete="username" />
+    <input type="password" id="password" placeholder="Password" autocomplete="current-password" />
+    <button id="loginBtn">Login</button>
+    <div id="message"></div>
+  </div>
+
+  <script>
+    const loginBtn = document.getElementById("loginBtn");
+    const messageEl = document.getElementById("message");
+
+    loginBtn.addEventListener("click", async () => {
+      messageEl.textContent = "";
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value.trim();
+
+      if (!username || !password) {
+        messageEl.style.color = "#f55";
+        messageEl.textContent = "Please enter username and password";
+        return;
+      }
+
+      try {
+        const res = await fetch("/api/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, password })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          // Save username and roles locally for dashboard use
+          localStorage.setItem("adminUser ", JSON.stringify({ username, roles: data.roles || [] }));
+          window.location.href = "/admin-dashboard";
+        } else {
+          messageEl.style.color = "#f55";
+          messageEl.textContent = data.error || "Login failed";
+        }
+      } catch {
+        messageEl.style.color = "#f55";
+        messageEl.textContent = "Network error";
+      }
+    });
+  </script>
+</body>
+</html>
