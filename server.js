@@ -1,6 +1,7 @@
 import express from "express";
 import fetch from "node-fetch"; // لو تستعمل Node 18+ ما تحتاجهاش
 import bodyParser from "body-parser";
+import path from "path";   // إذا كنت تستعمل ES modules (type: module في package.json)
 
 const app = express();
 app.use(bodyParser.json());
