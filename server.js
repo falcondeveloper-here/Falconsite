@@ -104,7 +104,7 @@ app.post("/api/login", async (req, res) => {
 });
 
 // ✅ Get all users with roles (admin only, protected by username+role in body)
-app.post("/api/admin/users", checkUser Role, requireRole("Ownership"), async (req, res) => {
+app.post("/api/admin/users", checkUserRole, requireRole("Ownership"), async (req, res) => {
   const data = await getData();
   if (!data.users) data.users = [];
 
@@ -117,8 +117,8 @@ app.post("/api/admin/users", checkUser Role, requireRole("Ownership"), async (re
   res.json(safeUsers);
 });
 
-// ✅ Update user roles (admin only)
-app.post("/api/admin/users/:username/roles", checkUser Role, requireRole("Ownership"), async (req, res) => {
+// ✅ Update UserRoles (admin only)
+app.post("/api/admin/users/:username/roles", checkUserRole, requireRole("Ownership"), async (req, res) => {
   const targetUsername = req.params.username;
   const { roles } = req.body;
 
