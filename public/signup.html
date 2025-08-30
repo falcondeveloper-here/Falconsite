@@ -133,47 +133,49 @@
   </div>
 
   <script>
-    const form = document.getElementById('signupForm');
-    const messageEl = document.getElementById('message');
+  const form = document.getElementById('signupForm');
+  const messageEl = document.getElementById('message');
 
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      messageEl.textContent = '';
-      messageEl.className = 'message';
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    messageEl.textContent = '';
+    messageEl.className = 'message';
 
-      const formData = new FormData(form);
-      const data = Object.fromEntries(formData.entries());
+    const formData = new FormData(form);
+    const data = Object.fromEntries(formData.entries());
 
-      if (data.password !== data.confirmPassword) {
-        messageEl.textContent = 'Passwords do not match.';
-        messageEl.classList.add('error');
-        return;
-      }
+    if (data.password !== data.confirmPassword) {
+      messageEl.textContent = 'Passwords do not match.';
+      messageEl.classList.add('error');
+      return;
+    }
 
-      try {
-        fetch("https://lossantos.onrender.com/api/register", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ username: "falcon", password: "1234" })
-})
-.then(res => res.json())
-.then(console.log)
-        });
-    
-        const result = await res.json();
-        if (res.ok) {
-          messageEl.textContent = result.message;
-          messageEl.classList.add('success');
-          form.reset();
-        } else {
-          messageEl.textContent = result.error || 'Signup failed.';
-          messageEl.classList.add('error');
-        }
-      } catch (err) {
-        messageEl.textContent = 'Network error.';
+    try {
+      const res = await fetch("https://lossantos.onrender.com/api/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: data.username,
+          email: data.email,
+          password: data.password
+        })
+      });
+
+      const result = await res.json();
+
+      if (res.ok) {
+        messageEl.textContent = result.message || 'Account created successfully!';
+        messageEl.classList.add('success');
+        form.reset();
+      } else {
+        messageEl.textContent = result.error || 'Signup failed.';
         messageEl.classList.add('error');
       }
-    });
-  </script>
+    } catch (err) {
+      messageEl.textContent = 'Network error.';
+      messageEl.classList.add('error');
+    }
+  });
+</script>
 </body>
 </html>
