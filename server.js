@@ -1,181 +1,114 @@
-import express from 'express';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import bcrypt from 'bcrypt';
-import session from 'express-session';
+import express from "express";
+import fetch from "node-fetch"; // لو تستعمل Node 18+ ما تحتاجهاش
+import bodyParser from "body-parser";
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+app.use(bodyParser.json());
 
-// __dirname fix for ES modules
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// =================== CONFIG ===================
+const BIN_ID = "68b28453d0ea881f406afe8b"; // Bin ID متاعك
+const JSONBIN_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
+const ACCESS_KEY = "$2a$10$OoZiAB9P.tfKYlG7qr6ONOG8U8koWKu1QQwE9jdMnFxo0SDE.GhgC"; // حط ال Master Key متاعك
+// ==============================================
 
-// Middleware
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, 'public')));
-
-// Session setup (in-memory store for demo; use a persistent store in production)
-app.use(session({
-  secret: 'your-secret-key', // change this to a strong secret in production
-  resave: false,
-  saveUninitialized: false,
-  cookie: { secure: false } // set true if using HTTPS
-}));
-
-// In-memory storage (replace with DB in production)
-const users = [];
-const staffApplications = [];
-const helperApplications = [];
-const gangApplications = [];
-const factionApplications = [];
-
-// Helper function to find user by username
-function findUser (username) {
-  return users.find(u => u.username.toLowerCase() === username.toLowerCase());
-}
-
-// Middleware to check if user is authenticated
-function isAuthenticated(req, res, next) {
-  if (req.session.user) {
-    req.user = req.session.user;
-    next();
-  } else {
-    res.status(401).json({ error: 'Not authenticated' });
-  }
-}
-
-// Middleware to check if user is admin (Ownership role)
-function isAdmin(req, res, next) {
-  if (req.session.user && req.session.user.roles && req.session.user.roles.includes('Ownership')) {
-    next();
-  } else {
-    res.status(403).json({ error: 'Access denied: Admins only' });
-  }
-}
-
-// --- Signup/Login Routes ---
-
-// Signup page
-app.get('/signup', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'signup.html'));
-});
-
-// Login page
-app.get('/login', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'login.html'));
-});
-
-// Signup API
-app.post('/api/signup', async (req, res) => {
-  const { username, email, password, confirmPassword } = req.body;
-  if (!username || !email || !password || !confirmPassword) {
-    return res.status(400).json({ error: 'All fields are required.' });
-  }
-  if (password !== confirmPassword) {
-    return res.status(400).json({ error: 'Passwords do not match.' });
-  }
-  if (findUser (username)) {
-    return res.status(400).json({ error: 'Username already taken.' });
-  }
-  try {
-    const hashedPassword = await bcrypt.hash(password, 10);
-    // Default role is empty array
-    users.push({ username, email, password: hashedPassword, roles: [], createdAt: new Date().toISOString() });
-    res.status(201).json({ message: 'User  registered successfully.' });
-  } catch (err) {
-    res.status(500).json({ error: 'Server error.' });
-  }
-});
-
-// Login API
-app.post('/api/login', async (req, res) => {
-  const { username, password } = req.body;
-  if (!username || !password) {
-    return res.status(400).json({ error: 'Username and password are required.' });
-  }
-  const user = findUser (username);
-  if (!user) {
-    return res.status(400).json({ error: 'Invalid username or password.' });
-  }
-  try {
-    const match = await bcrypt.compare(password, user.password);
-    if (!match) {
-      return res.status(400).json({ error: 'Invalid username or password.' });
-    }
-    // Save user info in session (excluding password)
-    req.session.user = {
-      username: user.username,
-      email: user.email,
-      roles: user.roles,
-      createdAt: user.createdAt
-    };
-    res.json({ message: `Welcome back, ${user.username}!`, user: req.session.user });
-  } catch (err) {
-    res.status(500).json({ error: 'Server error.' });
-  }
-});
-
-// Logout API
-app.post('/api/logout', (req, res) => {
-  req.session.destroy(() => {
-    res.json({ message: 'Logged out' });
+// ---------------- GET DATA ----------------
+async function getData() {
+  const res = await fetch(`${JSONBIN_URL}/latest`, {
+    headers: { "X-Master-Key": ACCESS_KEY },
   });
-});
+  const data = await res.json();
+  return data.record;
+}
 
-// --- Admin Rank Page ---
+// ---------------- SAVE DATA ----------------
+async function saveData(newData) {
+  await fetch(JSONBIN_URL, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      "X-Master-Key": ACCESS_KEY,
+    },
+    body: JSON.stringify(newData),
+  });
+}
 
-// Serve admin-rank page (only for admins)
-app.get('/admin-rank', isAuthenticated, isAdmin, (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'admin-rank.html'));
-});
+// ---------------- ROUTES ----------------
 
-// API to get all users (admin only)
-app.get('/api/admin/users', isAuthenticated, isAdmin, (req, res) => {
-  // Return users without passwords
-  const safeUsers = users.map(u => ({
-    username: u.username,
-    email: u.email,
-    roles: u.roles,
-    createdAt: u.createdAt
-  }));
-  res.json(safeUsers);
-});
+// ✅ تسجيل User
+app.post("/api/register", async (req, res) => {
+  const { username, password } = req.body;
+  if (!username || !password)
+    return res.status(400).json({ error: "Missing fields" });
 
-// API to update user roles (admin only)
-app.post('/api/admin/users/:username/roles', isAuthenticated, isAdmin, (req, res) => {
-  const targetUsername = req.params.username;
-  const { roles } = req.body;
-  if (!Array.isArray(roles)) {
-    return res.status(400).json({ error: 'Roles must be an array.' });
-  }
-  const user = findUser (targetUsername);
-  if (!user) {
-    return res.status(404).json({ error: 'User  not found.' });
-  }
-  // Validate roles: only allow known roles
-  const validRoles = ['Ownership', 'Developer', 'Staff', 'Team', 'GangMode', 'FactionMode', 'HelperMode', 'Ap'];
-  const filteredRoles = roles.filter(r => validRoles.includes(r));
-  user.roles = filteredRoles;
+  const data = await getData();
 
-  // If the updated user is the logged-in user, update session roles too
-  if (req.session.user && req.session.user.username === user.username) {
-    req.session.user.roles = filteredRoles;
+  if (data.users.find((u) => u.username === username)) {
+    return res.status(400).json({ error: "User already exists" });
   }
 
-  res.json({ message: `Roles updated for ${user.username}`, roles: filteredRoles });
+  data.users.push({ username, password });
+  await saveData(data);
+
+  res.json({ message: "User registered successfully" });
 });
 
-// --- Other application routes (staff, helper, gang, faction) ---
-// (You can copy your existing routes here, omitted for brevity)
+// ✅ Staff Application
+app.post("/api/staff", async (req, res) => {
+  const { username, reason } = req.body;
+  if (!username || !reason)
+    return res.status(400).json({ error: "Missing fields" });
 
-// Homepage route (optional)
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  const data = await getData();
+  data.staffApplications.push({ username, reason, date: new Date() });
+  await saveData(data);
+
+  res.json({ message: "Staff application submitted" });
 });
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+// ✅ Helper Application
+app.post("/api/helper", async (req, res) => {
+  const { username, reason } = req.body;
+  if (!username || !reason)
+    return res.status(400).json({ error: "Missing fields" });
+
+  const data = await getData();
+  data.helperApplications.push({ username, reason, date: new Date() });
+  await saveData(data);
+
+  res.json({ message: "Helper application submitted" });
 });
+
+// ✅ Gang Application
+app.post("/api/gang", async (req, res) => {
+  const { gangName, leader } = req.body;
+  if (!gangName || !leader)
+    return res.status(400).json({ error: "Missing fields" });
+
+  const data = await getData();
+  data.gangApplications.push({ gangName, leader, date: new Date() });
+  await saveData(data);
+
+  res.json({ message: "Gang application submitted" });
+});
+
+// ✅ Faction Application
+app.post("/api/faction", async (req, res) => {
+  const { factionName, leader } = req.body;
+  if (!factionName || !leader)
+    return res.status(400).json({ error: "Missing fields" });
+
+  const data = await getData();
+  data.factionApplications.push({ factionName, leader, date: new Date() });
+  await saveData(data);
+
+  res.json({ message: "Faction application submitted" });
+});
+
+// ✅ TEST route
+app.get("/", (req, res) => {
+  res.send("✅ Server is running with JSONBin");
+});
+
+// ---------------- START SERVER ----------------
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
