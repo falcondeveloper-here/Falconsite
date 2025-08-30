@@ -104,6 +104,34 @@ app.post("/api/faction", async (req, res) => {
   res.json({ message: "Faction application submitted" });
 });
 
+app.get('/faction-application', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'faction-application.html'));
+});
+app.get('/faction-applications-view', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'faction-applications-view.html'));
+});
+
+app.get('/gang-application', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'gang-application.html'));
+});
+app.get('/gang-applications-view', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'gang-applications-view.html'));
+});
+
+app.get('/login', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'login.html'));
+});
+app.get('/signup', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'signup.html'));
+});
+
+app.get('/stats', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'stats.html'));
+});
+app.get('/admin-rank', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'admin-rank.html'));
+});
+
 // ✅ TEST route
 app.get("/", (req, res) => {
   res.send("✅ Server is running with JSONBin");
