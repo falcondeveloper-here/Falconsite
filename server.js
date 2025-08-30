@@ -177,6 +177,65 @@ app.post("/api/admin/applications", async (req, res) => {
   });
 });
 
+// ---------------- Gang Request System ----------------
+
+// Gang submits a request to mafia
+app.post("/api/gang/request", async (req, res) => {
+  const { gangName, requestedItems, notes, username } = req.body;
+  if (!gangName || !requestedItems || !username) {
+    return res.status(400).json({ error: "Missing required fields" });
+  }
+
+  const data = await getData();
+  if (!data.gangRequests) data.gangRequests = [];
+
+  // Verify user is gang member
+  if (!data.users || !data.users.find(u => u.username === username && u.roles && u.roles.includes("GangMode"))) {
+    return res.status(403).json({ error: "User  not authorized to submit gang requests" });
+  }
+
+  const newRequest = {
+    id: Date.now().toString(),
+    gangName,
+    requestedItems,
+    notes: notes || "",
+    username,
+    date: new Date().toISOString(),
+    status: "pending"
+  };
+
+  data.gangRequests.push(newRequest);
+  await saveData(data);
+
+  res.json({ message: "Request submitted", request: newRequest });
+});
+
+// Mafia gets all gang requests
+app.get("/api/mafia/requests", async (req, res) => {
+  const username = req.query.username;
+  if (!username) return res.status(400).json({ error: "Missing username" });
+
+  const data = await getData();
+  if (!data.users) data.users = [];
+
+  const user = data.users.find(u => u.username === username);
+  if (!user || !user.roles || !user.roles.some(r => ["Staff", "Ownership", "GangMode"].includes(r))) {
+    return res.status(403).json({ error: "Access denied" });
+  }
+
+  if (!data.gangRequests) data.gangRequests = [];
+
+  res.json(data.gangRequests);
+});
+
+// Serve gang request pages
+app.get("/request-mafia", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "request-mafia.html"));
+});
+app.get("/mafia-requests", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "mafia-requests.html"));
+});
+
 // Serve frontend pages
 app.get("/admin-login", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "admin-login.html"));
