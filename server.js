@@ -53,10 +53,12 @@ app.post("/api/register", async (req, res) => {
   // نضمنو arrays موجودين
   if (!data.users) data.users = [];
 
+  // شيك إذا كان user موجود
   if (data.users.find((u) => u.username === username)) {
     return res.status(400).json({ error: "User already exists" });
   }
 
+  // زيدو
   data.users.push({ username, password });
   await saveData(data);
 
