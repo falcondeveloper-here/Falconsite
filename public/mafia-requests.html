@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mafia Gang Requests</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+    body {
+      margin: 0;
+      font-family: 'Roboto', Arial, sans-serif;
+      background: url('https://cdn.discordapp.com/attachments/1411394000304345200/1411394042029277334/MAFIA_GTA_RP_UG.jpg?ex=68b47ea2&is=68b32d22&hm=d947fcd211e42dcb27e63bc1e8d22951cfae09dc5ace2d3651cecbd3b5ff40af') no-repeat center center fixed;
+      background-size: cover;
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+    header {
+      width: 100%;
+      max-width: 900px;
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    header img {
+      height: 80px;
+      user-select: none;
+    }
+    main {
+      background: rgba(11, 15, 25, 0.85);
+      border-radius: 12px;
+      padding: 30px;
+      width: 100%;
+      max-width: 900px;
+      box-shadow: 0 0 20px #f0a500aa;
+      overflow-x: auto;
+    }
+    h1 {
+      text-align: center;
+      color: #f0a500;
+      margin-bottom: 30px;
+      user-select: none;
+    }
+    .controls {
+      text-align: center;
+      margin-bottom: 20px;
+      user-select: none;
+    }
+    .controls label {
+      font-weight: 700;
+      font-size: 16px;
+    }
+    .controls input[type="text"] {
+      padding: 8px;
+      border-radius: 8px;
+      border: none;
+      font-size: 16px;
+      background: #1a1f36;
+      color: #fff;
+      width: 250px;
+      margin-left: 10px;
+      user-select: text;
+    }
+    .controls button {
+      padding: 9px 20px;
+      background: #f0a500;
+      border: none;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 16px;
+      color: #111;
+      cursor: pointer;
+      margin-left: 15px;
+      transition: background-color 0.3s;
+      user-select: none;
+    }
+    .controls button:hover {
+      background: #ffb347;
+    }
+    #message {
+      margin-top: 10px;
+      font-weight: 700;
+      text-align: center;
+      min-height: 24px;
+      user-select: none;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      box-shadow: 0 0 10px #f0a500aa;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #1a1f36;
+      user-select: text;
+    }
+    th, td {
+      padding: 12px 15px;
+      border-bottom: 1px solid #333;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #11162a;
+    }
+    tr:nth-child(even) {
+      background: #11162a;
+    }
+    tr:last-child td {
+      border-bottom: none;
+    }
+    td pre {
+      margin: 0;
+      font-family: monospace;
+      white-space: pre-wrap;
+      word-break: break-word;
+      color: #ddd;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="los-santos-logo.png" alt="Los Santos Logo" />
+  </header>
+  <main>
+    <h1>Mafia Gang Requests</h1>
+    <div class="controls">
+      <label for="username">Your Username:</label>
+      <input type="text" id="username" placeholder="Enter your username" autocomplete="off" />
+      <button id="loadBtn">Load Requests</button>
+    </div>
+    <div id="message"></div>
+    <table id="requestsTable" style="display:none;">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Gang Name</th>
+          <th>Requested Items</th>
+          <th>Notes</th>
+          <th>Submitted By</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </main>
+
+  <script>
+    const loadBtn = document.getElementById("loadBtn");
+    const usernameInput = document.getElementById("username");
+    const messageEl = document.getElementById("message");
+    const requestsTable = document.getElementById("requestsTable");
+    const tbody = requestsTable.querySelector("tbody");
+
+    loadBtn.addEventListener("click", async () => {
+      const username = usernameInput.value.trim();
+      messageEl.textContent = "";
+      tbody.innerHTML = "";
+      requestsTable.style.display = "none";
+
+      if (!username) {
+        messageEl.style.color = "#f55";
+        messageEl.textContent = "Please enter your username.";
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/mafia/requests?username=${encodeURIComponent(username)}`);
+        const data = await res.json();
+        if (res.ok) {
+          if (data.length === 0) {
+            messageEl.style.color = "#f0a500";
+            messageEl.textContent = "No requests found.";
+            return;
+          }
+          requestsTable.style.display = "";
+          data.forEach((req) => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+              <td>${req.id}</td>
+              <td>${req.gangName}</td>
+              <td><pre>${req.requestedItems}</pre></td>
+              <td><pre>${req.notes || ""}</pre></td>
+              <td>${req.username}</td>
+              <td>${new Date(req.date).toLocaleString()}</td>
+            `;
+            tbody.appendChild(tr);
+          });
+        } else {
+          messageEl.style.color = "#f55";
+          messageEl.textContent = data.error || "Failed to load requests.";
+        }
+      } catch {
+        messageEl.style.color = "#f55";
+        messageEl.textContent = "Network error.";
+      }
+    });
+  </script>
+</body>
+</html>
