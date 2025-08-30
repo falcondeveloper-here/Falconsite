@@ -38,6 +38,31 @@ async function saveData(newData) {
   });
 }
 
+// -------------- Middleware to check role --------------
+async function checkUser Role(req, res, next) {
+  const { username } = req.body;
+  if (!username) return res.status(400).json({ error: "Missing username" });
+
+  const data = await getData();
+  if (!data.users) data.users = [];
+
+  const user = data.users.find(u => u.username === username);
+  if (!user) return res.status(404).json({ error: "User  not found" });
+
+  req.user = user; // attach user to request
+
+  next();
+}
+
+function requireRole(role) {
+  return (req, res, next) => {
+    if (!req.user || !req.user.roles || !req.user.roles.includes(role)) {
+      return res.status(403).json({ error: "Access denied: missing role " + role });
+    }
+    next();
+  };
+}
+
 // ---------------- ROUTES ----------------
 
 // ✅ تسجيل User
@@ -53,14 +78,14 @@ app.post("/api/register", async (req, res) => {
 
   // شيك إذا كان user موجود
   if (data.users.find((u) => u.username === username)) {
-    return res.status(400).json({ error: "User already exists" });
+    return res.status(400).json({ error: "User  already exists" });
   }
 
-  // زيد user جديد
-  data.users.push({ username, password });
+  // زيد user جديد مع roles فارغة
+  data.users.push({ username, password, roles: [] });
   await saveData(data);
 
-  res.json({ message: "User registered successfully" });
+  res.json({ message: "User  registered successfully" });
 });
 
 // ✅ Login
@@ -74,7 +99,47 @@ app.post("/api/login", async (req, res) => {
   );
   if (!user) return res.status(401).json({ error: "Invalid credentials" });
 
-  res.json({ message: "Login successful" });
+  // Return roles with login success
+  res.json({ message: "Login successful", roles: user.roles || [] });
+});
+
+// ✅ Get all users with roles (admin only, protected by username+role in body)
+app.post("/api/admin/users", checkUser Role, requireRole("Ownership"), async (req, res) => {
+  const data = await getData();
+  if (!data.users) data.users = [];
+
+  // Return users without passwords
+  const safeUsers = data.users.map(u => ({
+    username: u.username,
+    roles: u.roles || []
+  }));
+
+  res.json(safeUsers);
+});
+
+// ✅ Update user roles (admin only)
+app.post("/api/admin/users/:username/roles", checkUser Role, requireRole("Ownership"), async (req, res) => {
+  const targetUsername = req.params.username;
+  const { roles } = req.body;
+
+  if (!Array.isArray(roles)) {
+    return res.status(400).json({ error: "Roles must be an array" });
+  }
+
+  const validRoles = ["Ownership", "Developer", "Staff", "Team", "GangMode", "FactionMode", "HelperMode", "Ap"];
+
+  const filteredRoles = roles.filter(r => validRoles.includes(r));
+
+  const data = await getData();
+  if (!data.users) data.users = [];
+
+  const user = data.users.find(u => u.username === targetUsername);
+  if (!user) return res.status(404).json({ error: "User  not found" });
+
+  user.roles = filteredRoles;
+  await saveData(data);
+
+  res.json({ message: `Roles updated for ${user.username}`, roles: filteredRoles });
 });
 
 // ✅ Staff Application
