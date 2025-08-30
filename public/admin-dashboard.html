@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin Dashboard</title>
+  <style>
+    body {
+      background: #0b0f19;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background: #1a1f36;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 0 10px #f0a500aa;
+    }
+    header h1 {
+      margin: 0;
+      font-weight: 700;
+      color: #f0a500;
+    }
+    button#logoutBtn {
+      background: #f0a500;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-weight: 700;
+      color: #111;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    button#logoutBtn:hover {
+      background: #ffb347;
+    }
+    nav {
+      background: #11162a;
+      display: flex;
+      gap: 20px;
+      padding: 10px 20px;
+    }
+    nav button {
+      background: none;
+      border: none;
+      color: #aaa;
+      font-weight: 600;
+      font-size: 16px;
+      cursor: pointer;
+      padding: 10px 0;
+      border-bottom: 3px solid transparent;
+      transition: color 0.3s, border-color 0.3s;
+    }
+    nav button.active {
+      color: #f0a500;
+      border-color: #f0a500;
+    }
+    main {
+      padding: 20px;
+    }
+    .stats {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    .stat-box {
+      background: #1a1f36;
+      padding: 20px;
+      border-radius: 12px;
+      flex: 1;
+      text-align: center;
+      box-shadow: 0 0 10px #f0a500aa;
+    }
+    .stat-box h2 {
+      margin: 0 0 10px;
+      font-size: 28px;
+      color: #f0a500;
+    }
+    .stat-box p {
+      margin: 0;
+      font-size: 16px;
+      color: #ddd;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #1a1f36;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 0 10px #f0a500aa;
+      margin-bottom: 30px;
+    }
+    th, td {
+      padding: 12px 15px;
+      border-bottom: 1px solid #333;
+      text-align: left;
+    }
+    th {
+      background: #11162a;
+    }
+    tr:last-child td {
+      border-bottom: none;
+    }
+    .roles-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    label {
+      cursor: pointer;
+      user-select: none;
+      font-size: 14px;
+      color: #ddd;
+    }
+    input[type="checkbox"] {
+      margin-right: 6px;
+      cursor: pointer;
+    }
+    button.save-btn, button.delete-btn {
+      background: #f0a500;
+      border: none;
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-weight: bold;
+      color: #111;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      margin-right: 5px;
+    }
+    button.save-btn:hover, button.delete-btn:hover {
+      background: #ffb347;
+    }
+    #message {
+      margin-top: 15px;
+      font-weight: bold;
+    }
+    section.applications-section h3 {
+      margin-top: 30px;
+      color: #f0a500;
+    }
+    section.applications-section ul {
+      list-style: none;
+      padding-left: 0;
+    }
+    section.applications-section li {
+      background: #11162a;
+      margin-bottom: 8px;
+      padding: 10px;
+      border-radius: 6px;
+      font-family: monospace;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Admin Dashboard</h1>
+    <button id="logoutBtn">Logout</button>
+  </header>
+  <nav>
+    <button id="tabDashboard" class="active">Dashboard</button>
+    <button id="tabUsers">Users</button>
+    <button id="tabApplications">Applications</button>
+  </nav>
+  <main>
+    <section id="dashboardSection">
+      <div class="stats">
+        <div class="stat-box">
+          <h2 id="totalUsers">0</h2>
+          <p>Total Users</p>
+        </div>
+        <div class="stat-box">
+          <h2 id="totalAdmins">0</h2>
+          <p>Total Admins</p>
+        </div>
+        <div class="stat-box">
+          <h2 id="totalApplications">0</h2>
+          <p>Total Applications</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="usersSection" style="display:none;">
+      <table>
+        <thead>
+          <tr>
+            <th>Username</th>
+            <th>Roles</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="usersTableBody">
+          <tr><td colspan="3" style="text-align:center;">Loading users...</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="applicationsSection" style="display:none;" class="applications-section">
+      <h2>Applications Overview</h2>
+      <div id="applicationsContent">Loading applications...</div>
+    </section>
+
+    <div id="message"></div>
+  </main>
+
+  <script>
+    const rolesList = ["Ownership", "Developer", "Staff", "Team", "GangMode", "FactionMode", "HelperMode", "Ap"];
+    const adminUser  = JSON.parse(localStorage.getItem("adminUser "));
+    if (!adminUser ) {
+      window.location.href = "/admin-login";
+    }
+
+    const logoutBtn = document.getElementById("logoutBtn");
+    const tabDashboard = document.getElementById("tabDashboard");
+    const tabUsers = document.getElementById("tabUsers");
+    const tabApplications = document.getElementById("tabApplications");
+
+    const dashboard
