@@ -39,7 +39,7 @@ async function saveData(newData) {
 }
 
 // -------------- Middleware to check role --------------
-async function checkUser Role(req, res, next) {
+async function checkUserRole(req, res, next) {
   const { username } = req.body;
   if (!username) return res.status(400).json({ error: "Missing username" });
 
