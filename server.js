@@ -1,7 +1,13 @@
 import express from "express";
 import fetch from "node-fetch"; // لو تستعمل Node 18+ ما تحتاجهاش
 import bodyParser from "body-parser";
-import path from "path";   // إذا كنت تستعمل ES modules (type: module في package.json)
+import path from "path";
+import { fileURLToPath } from "url";   // ✅ مهم باش نخدمو __dirname
+
+// ---------------- FIX __dirname ----------------
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+// ------------------------------------------------
 
 const app = express();
 app.use(bodyParser.json());
