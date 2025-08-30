@@ -42,20 +42,22 @@ async function saveData(newData) {
 // ---------------- ROUTES ----------------
 
 // ✅ تسجيل User
+// ✅ تسجيل User
 app.post("/api/register", async (req, res) => {
-  const { username, email, password } = req.body;
-  if (!username || !email || !password)
+  const { username, password } = req.body;
+  if (!username || !password)
     return res.status(400).json({ error: "Missing fields" });
 
   const data = await getData();
 
-  if (!data.users) data.users = []; // ✅ نضمن array موجودة
+  // نضمنو arrays موجودين
+  if (!data.users) data.users = [];
 
   if (data.users.find((u) => u.username === username)) {
     return res.status(400).json({ error: "User already exists" });
   }
 
-  data.users.push({ username, email, password });
+  data.users.push({ username, password });
   await saveData(data);
 
   res.json({ message: "User registered successfully" });
