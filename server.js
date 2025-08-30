@@ -1,21 +1,20 @@
 import express from "express";
-import fetch from "node-fetch"; // لو تستعمل Node 18+ ما تحتاجهاش
+import fetch from "node-fetch";
 import bodyParser from "body-parser";
 import path from "path";
-import { fileURLToPath } from "url";   // ✅ مهم باش نخدمو __dirname
+import { fileURLToPath } from "url";
 
-// ---------------- FIX __dirname ----------------
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-// ------------------------------------------------
 
 const app = express();
 app.use(bodyParser.json());
+app.use(express.static(path.join(__dirname, "public")));
 
 // =================== CONFIG ===================
-const BIN_ID = "68b2c51343b1c97be9306ecd"; // Bin ID متاعك
+const BIN_ID = "68b28453d0ea881f406afe8b"; // Bin ID متاعك
 const JSONBIN_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
-const ACCESS_KEY = "$2a$10$OoZiAB9P.tfKYlG7qr6ONOG8U8koWKu1QQwE9jdMnFxo0SDE.GhgC"; // Master Key متاعك
+const ACCESS_KEY = "$2a$10$mM1Xopbp8M3zQa74yx4JsO1IK337iMzP1pg3mKJe5nzvjhWlZEHH."; 
 // ==============================================
 
 // ---------------- GET DATA ----------------
@@ -42,7 +41,6 @@ async function saveData(newData) {
 // ---------------- ROUTES ----------------
 
 // ✅ تسجيل User
-// ✅ تسجيل User
 app.post("/api/register", async (req, res) => {
   const { username, password } = req.body;
   if (!username || !password)
@@ -50,7 +48,7 @@ app.post("/api/register", async (req, res) => {
 
   const data = await getData();
 
-  // نضمنو arrays موجودين
+  // نضمنو arrays موجودة
   if (!data.users) data.users = [];
 
   // شيك إذا كان user موجود
@@ -58,38 +56,25 @@ app.post("/api/register", async (req, res) => {
     return res.status(400).json({ error: "User already exists" });
   }
 
-  // زيدو
+  // زيد user جديد
   data.users.push({ username, password });
   await saveData(data);
 
   res.json({ message: "User registered successfully" });
 });
 
-// ✅ Login User
+// ✅ Login
 app.post("/api/login", async (req, res) => {
   const { username, password } = req.body;
+  const data = await getData();
+  if (!data.users) return res.status(400).json({ error: "No users found" });
 
-  if (!username || !password) {
-    return res.status(400).json({ error: "Missing username or password" });
-  }
+  const user = data.users.find(
+    (u) => u.username === username && u.password === password
+  );
+  if (!user) return res.status(401).json({ error: "Invalid credentials" });
 
-  try {
-    const data = await getData();
-    if (!data.users) data.users = [];
-
-    const user = data.users.find(
-      (u) => u.username === username && u.password === password
-    );
-
-    if (!user) {
-      return res.status(401).json({ error: "Invalid credentials" });
-    }
-
-    res.json({ message: "Login successful", user });
-  } catch (err) {
-    console.error("Login error:", err);
-    res.status(500).json({ error: "Server error" });
-  }
+  res.json({ message: "Login successful" });
 });
 
 // ✅ Staff Application
@@ -99,6 +84,8 @@ app.post("/api/staff", async (req, res) => {
     return res.status(400).json({ error: "Missing fields" });
 
   const data = await getData();
+  if (!data.staffApplications) data.staffApplications = [];
+
   data.staffApplications.push({ username, reason, date: new Date() });
   await saveData(data);
 
@@ -112,6 +99,8 @@ app.post("/api/helper", async (req, res) => {
     return res.status(400).json({ error: "Missing fields" });
 
   const data = await getData();
+  if (!data.helperApplications) data.helperApplications = [];
+
   data.helperApplications.push({ username, reason, date: new Date() });
   await saveData(data);
 
@@ -125,6 +114,8 @@ app.post("/api/gang", async (req, res) => {
     return res.status(400).json({ error: "Missing fields" });
 
   const data = await getData();
+  if (!data.gangApplications) data.gangApplications = [];
+
   data.gangApplications.push({ gangName, leader, date: new Date() });
   await saveData(data);
 
@@ -138,70 +129,23 @@ app.post("/api/faction", async (req, res) => {
     return res.status(400).json({ error: "Missing fields" });
 
   const data = await getData();
+  if (!data.factionApplications) data.factionApplications = [];
+
   data.factionApplications.push({ factionName, leader, date: new Date() });
   await saveData(data);
 
   res.json({ message: "Faction application submitted" });
 });
 
-// ✅ Admin: Get all users
-app.get("/api/admin/users", async (req, res) => {
-  try {
-    const data = await getData();
-    res.json(data.users || []);
-  } catch (err) {
-    console.error("Error fetching users:", err);
-    res.status(500).json({ error: "Failed to fetch users" });
-  }
+// ✅ Serve HTML pages
+app.get("/signup", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "signup.html"));
 });
-
-// ✅ Admin: Update user roles
-app.post("/api/admin/users/:username/roles", async (req, res) => {
-  const { username } = req.params;
-  const { roles } = req.body;
-
-  try {
-    const data = await getData();
-    const user = data.users.find(u => u.username === username);
-    if (!user) return res.status(404).json({ error: "User not found" });
-
-    user.roles = roles; // Update roles
-    await saveData(data);
-
-    res.json({ message: "Roles updated", user });
-  } catch (err) {
-    console.error("Error updating roles:", err);
-    res.status(500).json({ error: "Failed to update roles" });
-  }
+app.get("/login", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "login.html"));
 });
-
-// ---------------- STATIC ROUTES ----------------
-app.get('/faction-application', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'faction-application.html'));
-});
-app.get('/faction-applications-view', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'faction-applications-view.html'));
-});
-
-app.get('/gang-application', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'gang-application.html'));
-});
-app.get('/gang-applications-view', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'gang-applications-view.html'));
-});
-
-app.get('/login', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'login.html'));
-});
-app.get('/signup', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'signup.html'));
-});
-
-app.get('/stats', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'stats.html'));
-});
-app.get('/admin-rank', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'admin-rank.html'));
+app.get("/admin-rank", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "admin-rank.html"));
 });
 
 // ✅ TEST route
