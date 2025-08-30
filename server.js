@@ -15,7 +15,7 @@ app.use(bodyParser.json());
 // =================== CONFIG ===================
 const BIN_ID = "68b28453d0ea881f406afe8b"; // Bin ID متاعك
 const JSONBIN_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
-const ACCESS_KEY = "$2a$10$OoZiAB9P.tfKYlG7qr6ONOG8U8koWKu1QQwE9jdMnFxo0SDE.GhgC"; // حط ال Master Key متاعك
+const ACCESS_KEY = "$2a$10$OoZiAB9P.tfKYlG7qr6ONOG8U8koWKu1QQwE9jdMnFxo0SDE.GhgC"; // Master Key متاعك
 // ==============================================
 
 // ---------------- GET DATA ----------------
@@ -111,6 +111,38 @@ app.post("/api/faction", async (req, res) => {
   res.json({ message: "Faction application submitted" });
 });
 
+// ✅ Admin: Get all users
+app.get("/api/admin/users", async (req, res) => {
+  try {
+    const data = await getData();
+    res.json(data.users || []);
+  } catch (err) {
+    console.error("Error fetching users:", err);
+    res.status(500).json({ error: "Failed to fetch users" });
+  }
+});
+
+// ✅ Admin: Update user roles
+app.post("/api/admin/users/:username/roles", async (req, res) => {
+  const { username } = req.params;
+  const { roles } = req.body;
+
+  try {
+    const data = await getData();
+    const user = data.users.find(u => u.username === username);
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    user.roles = roles; // Update roles
+    await saveData(data);
+
+    res.json({ message: "Roles updated", user });
+  } catch (err) {
+    console.error("Error updating roles:", err);
+    res.status(500).json({ error: "Failed to update roles" });
+  }
+});
+
+// ---------------- STATIC ROUTES ----------------
 app.get('/faction-application', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'faction-application.html'));
 });
