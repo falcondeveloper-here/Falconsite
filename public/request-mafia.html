@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gang Request Form</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+    body {
+      margin: 0;
+      font-family: 'Roboto', Arial, sans-serif;
+      background: url('https://cdn.discordapp.com/attachments/1411394000304345200/1411394042029277334/MAFIA_GTA_RP_UG.jpg?ex=68b47ea2&is=68b32d22&hm=d947fcd211e42dcb27e63bc1e8d22951cfae09dc5ace2d3651cecbd3b5ff40af') no-repeat center center fixed;
+      background-size: cover;
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+    header {
+      width: 100%;
+      max-width: 900px;
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    header img {
+      height: 80px;
+      user-select: none;
+    }
+    main {
+      background: rgba(11, 15, 25, 0.85);
+      border-radius: 12px;
+      padding: 30px;
+      width: 100%;
+      max-width: 600px;
+      box-shadow: 0 0 20px #f0a500aa;
+    }
+    h1 {
+      text-align: center;
+      color: #f0a500;
+      margin-bottom: 30px;
+      user-select: none;
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: 700;
+      font-size: 16px;
+      user-select: none;
+    }
+    input[type="text"],
+    textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 8px;
+      border-radius: 8px;
+      border: none;
+      font-size: 16px;
+      background: #1a1f36;
+      color: #fff;
+      resize: vertical;
+      user-select: text;
+    }
+    textarea {
+      min-height: 80px;
+    }
+    button {
+      margin-top: 25px;
+      width: 100%;
+      padding: 12px;
+      background: #f0a500;
+      border: none;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 18px;
+      color: #111;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      user-select: none;
+    }
+    button:hover {
+      background: #ffb347;
+    }
+    #message {
+      margin-top: 20px;
+      font-weight: 700;
+      text-align: center;
+      min-height: 24px;
+      user-select: none;
+    }
+    #preview {
+      margin-top: 30px;
+      background: #11162a;
+      border-radius: 8px;
+      padding: 15px;
+      font-family: monospace;
+      white-space: pre-wrap;
+      user-select: text;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="los-santos-logo.png" alt="Los Santos Logo" />
+  </header>
+  <main>
+    <h1>Gang Request Form</h1>
+    <form id="requestForm">
+      <label for="gangName">Gang Name *</label>
+      <input type="text" id="gangName" required autocomplete="off" />
+
+      <label for="requestedItems">Requested Items (weapons/drugs) *</label>
+      <textarea id="requestedItems" required></textarea>
+
+      <label for="notes">Additional Notes</label>
+      <textarea id="notes"></textarea>
+
+      <label for="username">Your Username *</label>
+      <input type="text" id="username" required autocomplete="off" />
+
+      <button type="submit">Send Request</button>
+    </form>
+    <div id="message"></div>
+    <pre id="preview" style="display:none;"></pre>
+  </main>
+
+  <script>
+    const form = document.getElementById("requestForm");
+    const messageEl = document.getElementById("message");
+    const previewEl = document.getElementById("preview");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      messageEl.textContent = "";
+      messageEl.style.color = "";
+      previewEl.style.display = "none";
+      previewEl.textContent = "";
+
+      const gangName = document.getElementById("gangName").value.trim();
+      const requestedItems = document.getElementById("requestedItems").value.trim();
+      const notes = document.getElementById("notes").value.trim();
+      const username = document.getElementById("username").value.trim();
+
+      if (!gangName || !requestedItems || !username) {
+        messageEl.style.color = "#f55";
+        messageEl.textContent = "Please fill all required fields.";
+        return;
+      }
+
+      try {
+        const res = await fetch("/api/gang/request", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ gangName, requestedItems, notes, username }),
+        });
+        const data = await res.json();
+        if (res.ok) {
+          messageEl.style.color = "#afa";
+          messageEl.textContent = "Request sent successfully! See below what you submitted.";
+          previewEl.style.display = "block";
+          previewEl.textContent = JSON.stringify(data.request, null, 2);
+          form.reset();
+        } else {
+          messageEl.style.color = "#f55";
+          messageEl.textContent = data.error || "Failed to send request.";
+        }
+      } catch {
+        messageEl.style.color = "#f55";
+        messageEl.textContent = "Network error.";
+      }
+    });
+  </script>
+</body>
+        </html>
