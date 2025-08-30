@@ -61,6 +61,33 @@ app.post("/api/register", async (req, res) => {
   res.json({ message: "User registered successfully" });
 });
 
+// ✅ Login User
+app.post("/api/login", async (req, res) => {
+  const { username, password } = req.body;
+
+  if (!username || !password) {
+    return res.status(400).json({ error: "Missing username or password" });
+  }
+
+  try {
+    const data = await getData();
+    if (!data.users) data.users = [];
+
+    const user = data.users.find(
+      (u) => u.username === username && u.password === password
+    );
+
+    if (!user) {
+      return res.status(401).json({ error: "Invalid credentials" });
+    }
+
+    res.json({ message: "Login successful", user });
+  } catch (err) {
+    console.error("Login error:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
 // ✅ Staff Application
 app.post("/api/staff", async (req, res) => {
   const { username, reason } = req.body;
