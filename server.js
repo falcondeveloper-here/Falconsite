@@ -13,7 +13,7 @@ const app = express();
 app.use(bodyParser.json());
 
 // =================== CONFIG ===================
-const BIN_ID = "68b28453d0ea881f406afe8b"; // Bin ID متاعك
+const BIN_ID = "68b2c51343b1c97be9306ecd"; // Bin ID متاعك
 const JSONBIN_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
 const ACCESS_KEY = "$2a$10$OoZiAB9P.tfKYlG7qr6ONOG8U8koWKu1QQwE9jdMnFxo0SDE.GhgC"; // Master Key متاعك
 // ==============================================
