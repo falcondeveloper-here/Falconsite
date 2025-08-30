@@ -151,12 +151,15 @@
       }
 
       try {
-        const res = await fetch('https://lossantos.onrender.com/api/register', {
-         method: 'POST',
-         headers: { 'Content-Type': 'application/json' },
-         body: JSON.stringify(data)
-});
+        fetch("https://lossantos.onrender.com/api/register", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ username: "falcon", password: "1234" })
+})
+.then(res => res.json())
+.then(console.log)
         });
+    
         const result = await res.json();
         if (res.ok) {
           messageEl.textContent = result.message;
