@@ -20,56 +20,85 @@ body{
   align-items:center;
   justify-content:center;
   min-height:100vh;
-  overflow:hidden;
   position:relative;
+  overflow:hidden;
 }
-.stars{position:absolute;width:100%;height:100%;background:transparent;overflow:hidden;z-index:0}
+.stars{position:absolute;width:100%;height:100%;z-index:0;overflow:hidden}
 .star{position:absolute;width:2px;height:2px;background:white;border-radius:50%;opacity:0.8;animation:twinkle 4s infinite ease-in-out}
 @keyframes twinkle{0%,100%{opacity:0.2}50%{opacity:1}}
 .card{
   position:relative;
   z-index:1;
   max-width:400px;
+  width:90%;
   padding:40px;
-  background:rgba(20,20,20,0.9);
-  border-radius:16px;
-  box-shadow:0 0 30px rgba(255,94,26,0.2);
+  background:rgba(20,20,20,0.95);
+  border-radius:20px;
+  box-shadow:0 15px 35px rgba(255,94,26,0.3), inset 0 0 30px rgba(255,94,26,0.1);
   text-align:center;
+  animation:floatCard 4s ease-in-out infinite;
 }
-h1{font-size:28px;margin-bottom:20px;background:linear-gradient(90deg,var(--accent),var(--accent-2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+@keyframes floatCard{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-10px)}
+}
+h1{
+  font-size:28px;
+  margin-bottom:20px;
+  background:linear-gradient(90deg,var(--accent),var(--accent-2));
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+.input-group{
+  position:relative;
+  margin:12px 0;
+}
 input{
   width:100%;
-  padding:12px 15px;
-  margin:10px 0;
+  padding:12px 45px 12px 15px;
   border:none;
-  border-radius:10px;
+  border-radius:12px;
   background:#111;
   color:#fff;
-  font-size:14px;
+  font-size:15px;
+  outline:none;
+  box-shadow:inset 0 0 8px rgba(255,94,26,0.2);
 }
+.toggle-pass{
+  position:absolute;
+  right:15px;
+  top:50%;
+  transform:translateY(-50%);
+  cursor:pointer;
+  font-size:18px;
+  color:#ff7f3f;
+  transition:0.3s;
+}
+.toggle-pass:hover{transform:translateY(-50%) scale(1.2)}
 .btn{
   padding:12px 20px;
-  border-radius:10px;
+  border-radius:12px;
   font-weight:600;
   cursor:pointer;
-  font-size:15px;
-  transition:0.2s ease;
+  font-size:16px;
+  transition:0.3s ease;
   border:none;
 }
 .btn-primary{
   background:linear-gradient(90deg,var(--accent),var(--accent-2));
   color:white;
   width:100%;
-  margin-top:10px;
+  margin-top:15px;
+  box-shadow:0 4px 15px rgba(255,94,26,0.3);
 }
-.btn-primary:hover{transform:translateY(-3px);box-shadow:0 0 20px rgba(255,94,26,0.4)}
+.btn-primary:hover{transform:translateY(-3px) scale(1.02);box-shadow:0 0 20px rgba(255,94,26,0.5)}
 .alert{
   position:absolute;
   bottom:-60px;
   left:50%;
   transform:translateX(-50%);
   padding:10px 20px;
-  border-radius:8px;
+  border-radius:10px;
   background:green;
   color:#fff;
   opacity:0;
@@ -79,23 +108,43 @@ input{
 }
 .alert.show{opacity:1;bottom:-10px}
 .alert.error{background:red;box-shadow:0 0 15px rgba(255,0,0,0.5);}
+.signup-line{
+  margin-top:20px;
+  font-size:14px;
+}
+.signup-line a{
+  color:var(--accent-2);
+  text-decoration:none;
+  font-weight:bold;
+  transition:0.3s;
+}
+.signup-line a:hover{text-shadow:0 0 8px var(--accent-2);}
 </style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 </head>
 <body>
 
 <div class="stars" id="stars"></div>
 
 <div class="card">
-<h1>Login StudioHub</h1>
-<input type="text" id="username" placeholder="Username">
-<input type="password" id="password" placeholder="Password">
-<button class="btn btn-primary" onclick="login()">Login</button>
-<div class="alert" id="alertBox"></div>
+  <h1>Login StudioHub</h1>
+  <div class="input-group">
+    <input type="text" id="username" placeholder="Username">
+  </div>
+  <div class="input-group">
+    <input type="password" id="password" placeholder="Password">
+    <i class="fa-solid fa-eye toggle-pass" id="togglePass"></i>
+  </div>
+  <button class="btn btn-primary" onclick="login()">Login</button>
+  <div class="signup-line">
+    Don’t have an account? <a href="signup.html">Sign up</a>
+  </div>
+  <div class="alert" id="alertBox"></div>
 </div>
 
 <script>
-const starsContainer = document.getElementById("stars");
-for(let i=0;i<60;i++){
+const starsContainer=document.getElementById("stars");
+for(let i=0;i<70;i++){
   const star=document.createElement("div");
   star.classList.add("star");
   star.style.top=Math.random()*100+"%";
@@ -104,10 +153,24 @@ for(let i=0;i<60;i++){
   starsContainer.appendChild(star);
 }
 
+// toggle password
+const passInput=document.getElementById("password");
+const togglePass=document.getElementById("togglePass");
+togglePass.addEventListener("click",()=>{
+  if(passInput.type==="password"){
+    passInput.type="text";
+    togglePass.classList.replace("fa-eye","fa-eye-slash");
+  } else {
+    passInput.type="password";
+    togglePass.classList.replace("fa-eye-slash","fa-eye");
+  }
+});
+
+// login fetch
 async function login(){
   const username=document.getElementById("username").value.trim();
   const password=document.getElementById("password").value.trim();
-  if(!username||!password){showAlert("Fill all fields",true); return;}
+  if(!username||!password){showAlert("Fill all fields",true);return;}
   try{
     const res=await fetch("/login",{
       method:"POST",
@@ -115,11 +178,11 @@ async function login(){
       body:JSON.stringify({username,password})
     });
     const data=await res.json();
-    if(data.success){ 
+    if(data.success){
       showAlert("Login successful!",false);
       setTimeout(()=>{window.location.href="index.html"},1500);
     } else showAlert(data.error,true);
-  }catch(err){showAlert(err.message,true);}
+  }catch(err){showAlert("Server error",true);}
 }
 
 function showAlert(msg,isError){
