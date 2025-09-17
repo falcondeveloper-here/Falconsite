@@ -5,25 +5,17 @@
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>Signup - StudioHub</title>
 <style>
-:root {
+:root{
   --bg:#0d0d0d;
+  --bg-light:#f5f5f5;
+  --text:#f5f5f5;
+  --text-light:#111;
   --accent:#ff5e1a;
   --accent-2:#ff7f3f;
-  --text:#f5f5f5;
   font-family:"Segoe UI",Roboto,sans-serif;
 }
-*{margin:0;padding:0;box-sizing:border-box}
-body{
-  background:var(--bg);
-  color:var(--text);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  min-height:100vh;
-  overflow:hidden;
-  position:relative;
-}
-.stars{position:absolute;width:100%;height:100%;background:transparent;overflow:hidden;z-index:0}
+body{margin:0;padding:0;display:flex;align-items:center;justify-content:center;min-height:100vh;position:relative;transition:0.5s;background:var(--bg);color:var(--text)}
+.stars{position:absolute;width:100%;height:100%;overflow:hidden;z-index:0}
 .star{position:absolute;width:2px;height:2px;background:white;border-radius:50%;opacity:0.8;animation:twinkle 4s infinite ease-in-out}
 @keyframes twinkle{0%,100%{opacity:0.2}50%{opacity:1}}
 .card{
@@ -35,8 +27,10 @@ body{
   border-radius:16px;
   box-shadow:0 0 30px rgba(255,94,26,0.2);
   text-align:center;
+  transition:0.5s;
 }
-h1{font-size:28px;margin-bottom:20px;background:linear-gradient(90deg,var(--accent),var(--accent-2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.card.light{background:rgba(245,245,245,0.95);color:#111;box-shadow:0 0 30px rgba(255,94,26,0.3);}
+h1{font-size:28px;margin-bottom:20px;background:linear-gradient(90deg,var(--accent),var(--accent-2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;transition:0.5s}
 input{
   width:100%;
   padding:12px 15px;
@@ -46,14 +40,16 @@ input{
   background:#111;
   color:#fff;
   font-size:14px;
+  transition:0.5s;
 }
+.card.light input{background:#eee;color:#111;}
 .btn{
   padding:12px 20px;
   border-radius:10px;
   font-weight:600;
   cursor:pointer;
   font-size:15px;
-  transition:0.2s ease;
+  transition:0.3s;
   border:none;
 }
 .btn-primary{
@@ -62,7 +58,21 @@ input{
   width:100%;
   margin-top:10px;
 }
-.btn-primary:hover{transform:translateY(-3px);box-shadow:0 0 20px rgba(255,94,26,0.4)}
+.btn-primary:hover{transform:translateY(-3px);box-shadow:0 0 20px rgba(255,94,26,0.4);}
+.toggle-btn{
+  position:absolute;
+  top:10px;right:10px;
+  padding:5px 10px;
+  border-radius:8px;
+  border:none;
+  cursor:pointer;
+  background:rgba(255,255,255,0.1);
+  color:#fff;
+  font-weight:bold;
+  transition:0.3s;
+}
+.toggle-btn:hover{background:rgba(255,255,255,0.3);}
+.card.light .toggle-btn{color:#111;background:rgba(0,0,0,0.1);}
 .alert{
   position:absolute;
   bottom:-60px;
@@ -77,24 +87,23 @@ input{
   pointer-events:none;
   box-shadow:0 0 15px rgba(0,255,0,0.5);
 }
-.alert.show{opacity:1;bottom:-10px}
+.alert.show{opacity:1;bottom:-10px;}
 .alert.error{background:red;box-shadow:0 0 15px rgba(255,0,0,0.5);}
 </style>
 </head>
 <body>
-
 <div class="stars" id="stars"></div>
-
-<div class="card">
+<div class="card" id="card">
 <h1>Signup StudioHub</h1>
 <input type="text" id="username" placeholder="Username">
 <input type="password" id="password" placeholder="Password">
 <button class="btn btn-primary" onclick="signup()">Create Account</button>
+<button class="toggle-btn" onclick="toggleTheme()">Toggle Mode</button>
 <div class="alert" id="alertBox"></div>
 </div>
 
 <script>
-const starsContainer = document.getElementById("stars");
+const starsContainer=document.getElementById("stars");
 for(let i=0;i<60;i++){
   const star=document.createElement("div");
   star.classList.add("star");
@@ -102,6 +111,12 @@ for(let i=0;i<60;i++){
   star.style.left=Math.random()*100+"%";
   star.style.animationDuration=2+Math.random()*3+"s";
   starsContainer.appendChild(star);
+}
+const card=document.getElementById("card");
+function toggleTheme(){
+  card.classList.toggle("light");
+  document.body.style.background = card.classList.contains("light") ? "#f5f5f5" : "#0d0d0d";
+  document.body.style.color = card.classList.contains("light") ? "#111" : "#f5f5f5";
 }
 
 async function signup(){
