@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Signup - StudioHub</title>
+<style>
+:root {
+  --bg:#0d0d0d;
+  --accent:#ff5e1a;
+  --accent-2:#ff7f3f;
+  --text:#f5f5f5;
+  font-family:"Segoe UI",Roboto,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  background:var(--bg);
+  color:var(--text);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:100vh;
+  overflow:hidden;
+  position:relative;
+}
+.stars{position:absolute;width:100%;height:100%;background:transparent;overflow:hidden;z-index:0}
+.star{position:absolute;width:2px;height:2px;background:white;border-radius:50%;opacity:0.8;animation:twinkle 4s infinite ease-in-out}
+@keyframes twinkle{0%,100%{opacity:0.2}50%{opacity:1}}
+.card{
+  position:relative;
+  z-index:1;
+  max-width:400px;
+  padding:40px;
+  background:rgba(20,20,20,0.9);
+  border-radius:16px;
+  box-shadow:0 0 30px rgba(255,94,26,0.2);
+  text-align:center;
+}
+h1{font-size:28px;margin-bottom:20px;background:linear-gradient(90deg,var(--accent),var(--accent-2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+input{
+  width:100%;
+  padding:12px 15px;
+  margin:10px 0;
+  border:none;
+  border-radius:10px;
+  background:#111;
+  color:#fff;
+  font-size:14px;
+}
+.btn{
+  padding:12px 20px;
+  border-radius:10px;
+  font-weight:600;
+  cursor:pointer;
+  font-size:15px;
+  transition:0.2s ease;
+  border:none;
+}
+.btn-primary{
+  background:linear-gradient(90deg,var(--accent),var(--accent-2));
+  color:white;
+  width:100%;
+  margin-top:10px;
+}
+.btn-primary:hover{transform:translateY(-3px);box-shadow:0 0 20px rgba(255,94,26,0.4)}
+.alert{
+  position:absolute;
+  bottom:-60px;
+  left:50%;
+  transform:translateX(-50%);
+  padding:10px 20px;
+  border-radius:8px;
+  background:green;
+  color:#fff;
+  opacity:0;
+  transition:0.5s;
+  pointer-events:none;
+  box-shadow:0 0 15px rgba(0,255,0,0.5);
+}
+.alert.show{opacity:1;bottom:-10px}
+.alert.error{background:red;box-shadow:0 0 15px rgba(255,0,0,0.5);}
+</style>
+</head>
+<body>
+
+<div class="stars" id="stars"></div>
+
+<div class="card">
+<h1>Signup StudioHub</h1>
+<input type="text" id="username" placeholder="Username">
+<input type="password" id="password" placeholder="Password">
+<button class="btn btn-primary" onclick="signup()">Create Account</button>
+<div class="alert" id="alertBox"></div>
+</div>
+
+<script>
+const starsContainer = document.getElementById("stars");
+for(let i=0;i<60;i++){
+  const star=document.createElement("div");
+  star.classList.add("star");
+  star.style.top=Math.random()*100+"%";
+  star.style.left=Math.random()*100+"%";
+  star.style.animationDuration=2+Math.random()*3+"s";
+  starsContainer.appendChild(star);
+}
+
+async function signup(){
+  const username=document.getElementById("username").value.trim();
+  const password=document.getElementById("password").value.trim();
+  if(!username||!password){showAlert("Fill all fields",true); return;}
+  try{
+    const res=await fetch("/signup",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({username,password})
+    });
+    const data=await res.json();
+    if(data.success){
+      showAlert("Account created successfully!",false);
+      setTimeout(()=>{window.location.href="login.html"},1500);
+    } else showAlert(data.error,true);
+  }catch(err){showAlert(err.message,true);}
+}
+
+function showAlert(msg,isError){
+  const alertBox=document.getElementById("alertBox");
+  alertBox.textContent=msg;
+  alertBox.className="alert show"+(isError?" error":"");
+  setTimeout(()=>{alertBox.className="alert";},2500);
+}
+</script>
+</body>
+</html>
