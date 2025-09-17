@@ -1,147 +1,199 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Signup - StudioHub</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 <style>
-:root{
+:root {
   --bg:#0d0d0d;
-  --bg-light:#f5f5f5;
-  --text:#f5f5f5;
-  --text-light:#111;
   --accent:#ff5e1a;
   --accent-2:#ff7f3f;
-  font-family:"Segoe UI",Roboto,sans-serif;
+  --text:#f5f5f5;
+  font-family:"Segoe UI", Roboto, sans-serif;
 }
-body{margin:0;padding:0;display:flex;align-items:center;justify-content:center;min-height:100vh;position:relative;transition:0.5s;background:var(--bg);color:var(--text)}
-.stars{position:absolute;width:100%;height:100%;overflow:hidden;z-index:0}
-.star{position:absolute;width:2px;height:2px;background:white;border-radius:50%;opacity:0.8;animation:twinkle 4s infinite ease-in-out}
-@keyframes twinkle{0%,100%{opacity:0.2}50%{opacity:1}}
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  background:var(--bg);
+  color:var(--text);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:100vh;
+  position:relative;
+  overflow:hidden;
+}
+.stars{position:absolute;inset:0;z-index:0;overflow:hidden}
+.star{position:absolute;width:2px;height:2px;background:white;border-radius:50%;opacity:0.85;animation:twinkle 3.5s infinite ease-in-out;filter:drop-shadow(0 0 6px rgba(255,255,255,0.6))}
+@keyframes twinkle{0%,100%{opacity:0.15;transform:scale(0.8)}50%{opacity:1;transform:scale(1.2)}}
 .card{
   position:relative;
   z-index:1;
-  max-width:400px;
-  padding:40px;
-  background:rgba(20,20,20,0.9);
-  border-radius:16px;
-  box-shadow:0 0 30px rgba(255,94,26,0.2);
+  max-width:420px;
+  width:92%;
+  padding:36px;
+  background:rgba(20,20,20,0.95);
+  border-radius:18px;
+  box-shadow:0 14px 40px rgba(255,94,26,0.18), inset 0 0 20px rgba(255,94,26,0.02);
   text-align:center;
-  transition:0.5s;
+  animation:floatCard 5.5s ease-in-out infinite;
+  transform-style:preserve-3d;
 }
-.card.light{background:rgba(245,245,245,0.95);color:#111;box-shadow:0 0 30px rgba(255,94,26,0.3);}
-h1{font-size:28px;margin-bottom:20px;background:linear-gradient(90deg,var(--accent),var(--accent-2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;transition:0.5s}
+@keyframes floatCard{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+h1{
+  font-size:28px;
+  margin-bottom:18px;
+  background:linear-gradient(90deg,var(--accent),var(--accent-2));
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+.input-group{position:relative;margin:12px 0}
 input{
   width:100%;
-  padding:12px 15px;
-  margin:10px 0;
-  border:none;
-  border-radius:10px;
-  background:#111;
-  color:#fff;
-  font-size:14px;
-  transition:0.5s;
+  padding:12px 44px 12px 14px;
+  border:0;
+  border-radius:12px;
+  background:#0f0f0f;
+  color:var(--text);
+  font-size:15px;
+  outline:none;
+  box-shadow:inset 0 0 12px rgba(255,94,26,0.04);
 }
-.card.light input{background:#eee;color:#111;}
+input::placeholder{color:#8a8a8a}
+.toggle-pass{
+  position:absolute;
+  right:12px;
+  top:50%;
+  transform:translateY(-50%);
+  cursor:pointer;
+  font-size:18px;
+  color:#ff7f3f;
+  transition:transform .18s;
+}
+.toggle-pass:hover{transform:translateY(-50%) scale(1.12)}
 .btn{
-  padding:12px 20px;
-  border-radius:10px;
-  font-weight:600;
+  padding:12px 18px;
+  border-radius:12px;
+  font-weight:700;
   cursor:pointer;
   font-size:15px;
-  transition:0.3s;
-  border:none;
+  transition:transform .18s, box-shadow .18s;
+  border:0;
 }
 .btn-primary{
   background:linear-gradient(90deg,var(--accent),var(--accent-2));
-  color:white;
-  width:100%;
-  margin-top:10px;
-}
-.btn-primary:hover{transform:translateY(-3px);box-shadow:0 0 20px rgba(255,94,26,0.4);}
-.toggle-btn{
-  position:absolute;
-  top:10px;right:10px;
-  padding:5px 10px;
-  border-radius:8px;
-  border:none;
-  cursor:pointer;
-  background:rgba(255,255,255,0.1);
   color:#fff;
-  font-weight:bold;
-  transition:0.3s;
+  width:100%;
+  margin-top:14px;
+  box-shadow:0 8px 30px rgba(255,94,26,0.14);
 }
-.toggle-btn:hover{background:rgba(255,255,255,0.3);}
-.card.light .toggle-btn{color:#111;background:rgba(0,0,0,0.1);}
+.btn-primary:active{transform:translateY(1px)}
+.link-line{margin-top:14px;color:#bdbdbd;font-size:14px}
+.link-line a{color:var(--accent-2);text-decoration:none;font-weight:700}
 .alert{
   position:absolute;
-  bottom:-60px;
+  bottom:-68px;
   left:50%;
   transform:translateX(-50%);
-  padding:10px 20px;
-  border-radius:8px;
+  padding:10px 18px;
+  border-radius:10px;
   background:green;
   color:#fff;
   opacity:0;
-  transition:0.5s;
+  transition:all .45s;
   pointer-events:none;
-  box-shadow:0 0 15px rgba(0,255,0,0.5);
+  box-shadow:0 8px 30px rgba(0,255,0,0.08);
 }
-.alert.show{opacity:1;bottom:-10px;}
-.alert.error{background:red;box-shadow:0 0 15px rgba(255,0,0,0.5);}
+.alert.show{opacity:1;bottom:-18px}
+.alert.error{background:#e23b3b;box-shadow:0 8px 30px rgba(226,59,59,0.12)}
+@media (max-width:480px){
+  .card{padding:26px;border-radius:14px}
+  h1{font-size:22px}
+  input{font-size:14px}
+}
 </style>
 </head>
 <body>
+
 <div class="stars" id="stars"></div>
-<div class="card" id="card">
-<h1>Signup StudioHub</h1>
-<input type="text" id="username" placeholder="Username">
-<input type="password" id="password" placeholder="Password">
-<button class="btn btn-primary" onclick="signup()">Create Account</button>
-<button class="toggle-btn" onclick="toggleTheme()">Toggle Mode</button>
-<div class="alert" id="alertBox"></div>
+
+<div class="card" role="main" aria-labelledby="signupTitle">
+  <h1 id="signupTitle">Create Account</h1>
+
+  <div class="input-group">
+    <input id="username" type="text" placeholder="Username" autocomplete="username" />
+  </div>
+
+  <div class="input-group">
+    <input id="password" type="password" placeholder="Password" autocomplete="new-password" />
+    <i class="fa-solid fa-eye toggle-pass" id="togglePass" title="Show / Hide password"></i>
+  </div>
+
+  <button class="btn btn-primary" onclick="signup()">Create Account</button>
+
+  <div class="link-line">Already have an account? <a href="login.html">Login</a></div>
+
+  <div class="alert" id="alertBox" role="status" aria-live="polite"></div>
 </div>
 
 <script>
-const starsContainer=document.getElementById("stars");
-for(let i=0;i<60;i++){
-  const star=document.createElement("div");
-  star.classList.add("star");
-  star.style.top=Math.random()*100+"%";
-  star.style.left=Math.random()*100+"%";
-  star.style.animationDuration=2+Math.random()*3+"s";
-  starsContainer.appendChild(star);
+const starsContainer = document.getElementById("stars");
+for(let i=0;i<70;i++){
+  const s = document.createElement("div");
+  s.className = "star";
+  s.style.top = Math.random()*100 + "%";
+  s.style.left = Math.random()*100 + "%";
+  const size = 1 + Math.random()*2;
+  s.style.width = size + "px";
+  s.style.height = size + "px";
+  s.style.animationDuration = (2 + Math.random()*3) + "s";
+  s.style.opacity = 0.4 + Math.random()*0.6;
+  starsContainer.appendChild(s);
 }
-const card=document.getElementById("card");
-function toggleTheme(){
-  card.classList.toggle("light");
-  document.body.style.background = card.classList.contains("light") ? "#f5f5f5" : "#0d0d0d";
-  document.body.style.color = card.classList.contains("light") ? "#111" : "#f5f5f5";
-}
+
+const passInput = document.getElementById("password");
+const togglePass = document.getElementById("togglePass");
+togglePass.addEventListener("click", () => {
+  if(passInput.type === "password"){
+    passInput.type = "text";
+    togglePass.classList.replace("fa-eye","fa-eye-slash");
+    togglePass.setAttribute("title","Hide password");
+  } else {
+    passInput.type = "password";
+    togglePass.classList.replace("fa-eye-slash","fa-eye");
+    togglePass.setAttribute("title","Show password");
+  }
+});
 
 async function signup(){
-  const username=document.getElementById("username").value.trim();
-  const password=document.getElementById("password").value.trim();
-  if(!username||!password){showAlert("Fill all fields",true); return;}
+  const uname = document.getElementById("username").value.trim();
+  const pwd = document.getElementById("password").value.trim();
+  if(!uname || !pwd){ showAlert("Fill all fields", true); return; }
+
   try{
-    const res=await fetch("/signup",{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({username,password})
+    const res = await fetch("/signup", {
+      method: "POST",
+      headers: { "Content-Type":"application/json" },
+      body: JSON.stringify({ username: uname, password: pwd })
     });
-    const data=await res.json();
+    const data = await res.json();
     if(data.success){
-      showAlert("Account created successfully!",false);
-      setTimeout(()=>{window.location.href="login.html"},1500);
-    } else showAlert(data.error,true);
-  }catch(err){showAlert(err.message,true);}
+      showAlert("Account created successfully!", false);
+      setTimeout(()=> window.location.href = "login.html", 1300);
+    } else {
+      showAlert(data.error || "Error creating account", true);
+    }
+  } catch(err){
+    showAlert("Server error", true);
+  }
 }
 
-function showAlert(msg,isError){
-  const alertBox=document.getElementById("alertBox");
-  alertBox.textContent=msg;
-  alertBox.className="alert show"+(isError?" error":"");
-  setTimeout(()=>{alertBox.className="alert";},2500);
+function showAlert(msg, isError){
+  const box = document.getElementById("alertBox");
+  box.textContent = msg;
+  box.className = "alert show" + (isError ? " error" : "");
+  setTimeout(()=> box.className = "alert", 2600);
 }
 </script>
 </body>
