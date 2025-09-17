@@ -4,11 +4,15 @@
   <meta charset="UTF-8">
   <title>Codes</title>
   <style>
-    body { font-family: sans-serif; background:#0d0d0d; color:#fff; padding:30px }
-    .card { background:#1a1a1a; padding:20px; border-radius:10px; margin-bottom:20px }
-    .title { font-weight:bold; margin-bottom:10px; color:orange }
-    pre { background:#111; padding:10px; border-radius:6px; overflow-x:auto }
-    button { margin-top:10px; padding:6px 12px; border:none; border-radius:6px; background:orange; cursor:pointer; font-weight:bold }
+    body { font-family: sans-serif; background:#0d0d0d; color:#fff; padding:30px; min-height:100vh; }
+    h1 { text-align:center; font-size:36px; margin-bottom:30px; color:orange; text-shadow:0 0 10px #ff7f3f }
+    #codes { display:flex; flex-direction:column; gap:20px; }
+    .card { background:#1a1a1a; padding:20px; border-radius:12px; box-shadow:0 0 15px rgba(255,127,63,0.3); transform: perspective(600px) rotateX(0deg); transition:0.3s; }
+    .card:hover { transform: perspective(600px) rotateX(3deg) translateY(-5px); box-shadow:0 0 30px rgba(255,127,63,0.5); }
+    .title { font-weight:bold; font-size:18px; color:orange; margin-bottom:10px; }
+    pre { background:#111; padding:10px; border-radius:6px; overflow-x:auto; white-space: pre-wrap; word-wrap: break-word; }
+    button { margin-top:10px; padding:6px 12px; border:none; border-radius:6px; background:orange; cursor:pointer; font-weight:bold; transition:0.2s }
+    button:hover { transform:translateY(-2px); box-shadow:0 0 10px orange }
   </style>
 </head>
 <body>
@@ -17,21 +21,28 @@
 
   <script>
     async function loadCodes() {
-      const res = await fetch("http://localhost:3000/codes");
-      const data = await res.json();
-      const container = document.getElementById("codes");
-      container.innerHTML = "";
-
-      data.forEach(c => {
-        const div = document.createElement("div");
-        div.className = "card";
-        div.innerHTML = `
-          <div class="title">${c.title}</div>
-          <pre>${c.code}</pre>
-          <button onclick="copyCode(\`${c.code.replace(/`/g, "\\`")}\`)">Copy</button>
-        `;
-        container.appendChild(div);
-      });
+      try {
+        const res = await fetch("/codes");
+        const data = await res.json();
+        const container = document.getElementById("codes");
+        container.innerHTML = "";
+        if(!data.length) {
+          container.innerHTML = "<p style='text-align:center;color:#888'>No codes yet</p>";
+          return;
+        }
+        data.forEach(c => {
+          const div = document.createElement("div");
+          div.className = "card";
+          div.innerHTML = `
+            <div class="title">${c.title}</div>
+            <pre>${c.code}</pre>
+            <button onclick="copyCode(\`${c.code.replace(/`/g,"\\`")}\`)">Copy</button>
+          `;
+          container.appendChild(div);
+        });
+      } catch(err) {
+        document.getElementById("codes").innerHTML = `<p style='color:red'>Error loading codes: ${err.message}</p>`;
+      }
     }
 
     function copyCode(code) {
