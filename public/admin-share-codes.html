@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Share Codes</title>
+  <style>
+    body { font-family: sans-serif; background:#0d0d0d; color:#fff; display:flex; justify-content:center; align-items:center; height:100vh }
+    .box { background:#1a1a1a; padding:20px; border-radius:10px; width:400px }
+    input, textarea { width:100%; margin:8px 0; padding:10px; border:none; border-radius:6px }
+    button { background:orange; border:none; padding:10px; width:100%; border-radius:6px; font-weight:bold; cursor:pointer }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h2>Share a New Code</h2>
+    <input type="text" id="title" placeholder="Code Title" />
+    <textarea id="code" placeholder="Paste code here..." rows="6"></textarea>
+    <button onclick="shareCode()">Submit</button>
+  </div>
+  <script>
+    async function shareCode() {
+      const title = document.getElementById("title").value;
+      const code = document.getElementById("code").value;
+
+      if(!title || !code) return alert("Fill all fields!");
+
+      const res = await fetch("http://localhost:3000/codes", {
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify({ title, code })
+      });
+
+      const data = await res.json();
+      if(data.success) {
+        alert("Code shared successfully!");
+        document.getElementById("title").value = "";
+        document.getElementById("code").value = "";
+      } else {
+        alert("Error sharing code");
+      }
+    }
+  </script>
+</body>
+</html>
