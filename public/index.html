@@ -13,7 +13,6 @@
       --text: #f5f5f5;
       font-family: "Segoe UI", Roboto, sans-serif;
     }
-
     * { margin: 0; padding: 0; box-sizing: border-box }
 
     body {
@@ -44,26 +43,22 @@
       opacity: 0.8;
       animation: twinkle 4s infinite ease-in-out;
     }
-    @keyframes twinkle {
-      0%, 100% { opacity: 0.2 }
-      50% { opacity: 1 }
-    }
+    @keyframes twinkle { 0%,100%{opacity:0.2} 50%{opacity:1} }
 
     .card {
       position: relative;
       z-index: 1;
       max-width: 800px;
       padding: 40px;
-      background: rgba(20, 20, 20, 0.9);
+      background: rgba(20,20,20,0.9);
       border-radius: 16px;
-      box-shadow: 0 0 30px rgba(255, 94, 26, 0.2);
+      box-shadow: 0 0 30px rgba(255,94,26,0.2);
       text-align: center;
-      transform: perspective(1000px) rotateX(0deg);
       animation: floatCard 6s ease-in-out infinite;
     }
     @keyframes floatCard {
-      0%,100% { transform: perspective(1000px) translateY(0px) rotateX(0deg); }
-      50% { transform: perspective(1000px) translateY(-12px) rotateX(3deg); }
+      0%,100% { transform: translateY(0px) rotateX(0deg); }
+      50% { transform: translateY(-12px) rotateX(3deg); }
     }
 
     .badge {
@@ -75,7 +70,6 @@
       color: var(--accent);
       margin-bottom: 16px;
     }
-
     h1 {
       font-size: 36px;
       margin-bottom: 12px;
@@ -83,19 +77,9 @@
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
+    p { font-size: 16px; color: #bbb; margin-bottom: 24px; }
 
-    p {
-      font-size: 16px;
-      color: #bbb;
-      margin-bottom: 24px;
-    }
-
-    .actions {
-      display: flex;
-      gap: 14px;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
+    .actions { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
 
     .btn {
       padding: 12px 20px;
@@ -103,8 +87,8 @@
       font-weight: 600;
       cursor: pointer;
       font-size: 15px;
-      transition: 0.2s ease;
       border: none;
+      transition: 0.2s ease;
     }
     .btn-primary {
       background: linear-gradient(90deg, var(--accent), var(--accent-2));
@@ -150,9 +134,7 @@
       padding: 80px 20px;
       z-index: 9;
     }
-    .menu.open {
-      right: 0;
-    }
+    .menu.open { right: 0; }
     .menu a {
       display: flex;
       align-items: center;
@@ -166,17 +148,20 @@
       transition: 0.3s;
       text-decoration: none;
     }
-    .menu a i {
-      font-size: 18px;
-      color: var(--accent);
-      transition: 0.3s;
-    }
+    .menu a i { font-size: 18px; color: var(--accent); transition: 0.3s; }
     .menu a:hover {
       background: linear-gradient(90deg, rgba(255,94,26,0.15), rgba(255,127,63,0.1));
       transform: translateX(-6px) scale(1.05);
     }
-    .menu a:hover i {
-      transform: rotate(15deg) scale(1.2);
+    .menu a:hover i { transform: rotate(15deg) scale(1.2); }
+
+    /* ID display */
+    #userIdDisplay {
+      margin-top: 10px;
+      font-size: 18px;
+      font-weight: bold;
+      color: var(--accent);
+      display: none;
     }
   </style>
 </head>
@@ -186,6 +171,7 @@
   <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
 
   <div class="menu" id="menu">
+    <a href="login.html"><i class="fas fa-sign-in-alt"></i> Login</a>
     <a href="codes.html"><i class="fas fa-code"></i> Codes</a>
     <a href="projects.html"><i class="fas fa-diagram-project"></i> Projects</a>
     <a href="backups.html"><i class="fas fa-database"></i> Backups</a>
@@ -197,12 +183,14 @@
     <div class="badge">🚀 StudioHub</div>
     <h1>Welcome to StudioHub</h1>
     <p>Black & Orange styled interface with smooth animations and starry vibe.</p>
+    <div id="userIdDisplay"></div>
     <div class="actions">
       <button class="btn btn-primary">Our Codes</button>
     </div>
   </div>
 
   <script>
+    // stars
     const starsContainer = document.getElementById("stars");
     for (let i = 0; i < 60; i++) {
       const star = document.createElement("div");
@@ -213,21 +201,31 @@
       starsContainer.appendChild(star);
     }
 
+    // menu
     const menuToggle = document.getElementById("menuToggle");
     const menu = document.getElementById("menu");
-    menuToggle.addEventListener("click", () => {
-      menu.classList.toggle("open");
-    });
+    menuToggle.addEventListener("click", () => menu.classList.toggle("open"));
     document.addEventListener("click", e => {
       if (!menu.contains(e.target) && !menuToggle.contains(e.target)) {
         menu.classList.remove("open");
       }
     });
     menu.querySelectorAll("a").forEach(link => {
-      link.addEventListener("click", () => {
-        menu.classList.remove("open");
-      });
+      link.addEventListener("click", () => menu.classList.remove("open"));
     });
+
+    // show user ID if logged in
+    const userIdDisplay = document.getElementById("userIdDisplay");
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      try {
+        const user = JSON.parse(storedUser);
+        if (user.id) {
+          userIdDisplay.textContent = "Your ID: " + user.id;
+          userIdDisplay.style.display = "block";
+        }
+      } catch (e) { console.error("Invalid user data in localStorage"); }
+    }
   </script>
 </body>
 </html>
