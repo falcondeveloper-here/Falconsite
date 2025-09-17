@@ -8,8 +8,8 @@ app.use(cors());
 app.use(bodyParser.json());
 
 // استعمل الـ bin الخاص بيك من JSONBin
-const BIN_ID = "YOUR_BIN_ID";
-const API_KEY = "YOUR_JSONBIN_API_KEY";
+const BIN_ID = "68ca8affae596e708ff1abca";
+const API_KEY = "$2a$10$mM1Xopbp8M3zQa74yx4JsO1IK337iMzP1pg3mKJe5nzvjhWlZEHH.";
 
 // Get all codes
 app.get("/codes", async (req, res) => {
