@@ -2,20 +2,146 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Codes</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Codes - StudioHub</title>
   <style>
-    body { font-family: sans-serif; background:#0d0d0d; color:#fff; padding:30px; min-height:100vh; }
-    h1 { text-align:center; font-size:36px; margin-bottom:30px; color:orange; text-shadow:0 0 10px #ff7f3f }
-    #codes { display:flex; flex-direction:column; gap:20px; }
-    .card { background:#1a1a1a; padding:20px; border-radius:12px; box-shadow:0 0 15px rgba(255,127,63,0.3); transform: perspective(600px) rotateX(0deg); transition:0.3s; }
-    .card:hover { transform: perspective(600px) rotateX(3deg) translateY(-5px); box-shadow:0 0 30px rgba(255,127,63,0.5); }
-    .title { font-weight:bold; font-size:18px; color:orange; margin-bottom:10px; }
-    pre { background:#111; padding:10px; border-radius:6px; overflow-x:auto; white-space: pre-wrap; word-wrap: break-word; }
-    button { margin-top:10px; padding:6px 12px; border:none; border-radius:6px; background:orange; cursor:pointer; font-weight:bold; transition:0.2s }
-    button:hover { transform:translateY(-2px); box-shadow:0 0 10px orange }
+    :root {
+      --bg: #0d0d0d;
+      --accent: #ff5e1a;
+      --accent-2: #ff7f3f;
+      --text: #f5f5f5;
+      font-family: "Segoe UI", Roboto, sans-serif;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+
+    /* header */
+    header {
+      width: 100%;
+      max-width: 1200px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 30px;
+    }
+    .brand {
+      font-size: 26px;
+      font-weight: 700;
+      background: linear-gradient(90deg,var(--accent),var(--accent-2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 0 15px rgba(255,127,63,0.5);
+    }
+    .request-btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 15px;
+      background: linear-gradient(90deg,var(--accent),var(--accent-2));
+      color: white;
+      transition: 0.3s;
+      box-shadow: 0 0 15px rgba(255,94,26,0.3);
+    }
+    .request-btn:hover {
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 0 25px rgba(255,94,26,0.6);
+    }
+
+    /* page title */
+    h1 {
+      font-size: 36px;
+      margin-bottom: 20px;
+      text-align: center;
+      background: linear-gradient(90deg,var(--accent),var(--accent-2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* codes container */
+    #codes {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px,1fr));
+      gap: 20px;
+      width: 100%;
+      max-width: 1200px;
+    }
+    .card {
+      background: rgba(20,20,20,0.95);
+      padding: 20px;
+      border-radius: 14px;
+      box-shadow: 0 0 20px rgba(255,127,63,0.25);
+      transform: perspective(800px) rotateX(0deg);
+      transition: transform 0.4s, box-shadow 0.4s;
+    }
+    .card:hover {
+      transform: perspective(800px) rotateX(4deg) translateY(-6px);
+      box-shadow: 0 0 35px rgba(255,127,63,0.5);
+    }
+    .title {
+      font-weight: bold;
+      font-size: 18px;
+      margin-bottom: 12px;
+      color: var(--accent-2);
+    }
+    pre {
+      background: #111;
+      padding: 12px;
+      border-radius: 8px;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      font-size: 14px;
+    }
+    button.copy {
+      margin-top: 12px;
+      padding: 8px 14px;
+      border: none;
+      border-radius: 8px;
+      background: var(--accent);
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    button.copy:hover {
+      background: var(--accent-2);
+      box-shadow: 0 0 12px var(--accent-2);
+      transform: translateY(-2px);
+    }
+
+    /* empty message */
+    .empty {
+      text-align: center;
+      color: #888;
+      grid-column: 1 / -1;
+    }
+
+    /* responsive */
+    @media(max-width:600px){
+      header { flex-direction: column; gap: 12px; }
+      .brand { font-size: 22px; }
+      .request-btn { width: 100%; }
+    }
   </style>
 </head>
 <body>
+  <header>
+    <div class="brand">🚀 StudioHub</div>
+    <button class="request-btn" onclick="window.location.href='request-codes.html'">
+      Request Your Own Code
+    </button>
+  </header>
+
   <h1>Codes</h1>
   <div id="codes"></div>
 
@@ -26,8 +152,8 @@
         const data = await res.json();
         const container = document.getElementById("codes");
         container.innerHTML = "";
-        if(!data.length) {
-          container.innerHTML = "<p style='text-align:center;color:#888'>No codes yet</p>";
+        if (!data.length) {
+          container.innerHTML = "<p class='empty'>No codes yet</p>";
           return;
         }
         data.forEach(c => {
@@ -36,18 +162,19 @@
           div.innerHTML = `
             <div class="title">${c.title}</div>
             <pre>${c.code}</pre>
-            <button onclick="copyCode(\`${c.code.replace(/`/g,"\\`")}\`)">Copy</button>
+            <button class="copy" onclick="copyCode(\`${c.code.replace(/`/g,"\\`")}\`)">Copy</button>
           `;
           container.appendChild(div);
         });
-      } catch(err) {
-        document.getElementById("codes").innerHTML = `<p style='color:red'>Error loading codes: ${err.message}</p>`;
+      } catch (err) {
+        document.getElementById("codes").innerHTML =
+          `<p style="color:red">Error loading codes: ${err.message}</p>`;
       }
     }
 
     function copyCode(code) {
       navigator.clipboard.writeText(code);
-      alert("Code copied!");
+      alert("✅ Code copied!");
     }
 
     loadCodes();
