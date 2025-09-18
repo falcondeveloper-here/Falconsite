@@ -52,37 +52,43 @@ async function saveData(newData) {
 
 // ------------------- PROJECTS -------------------
 app.get("/projects", async (req, res) => {
-  try {
-    const data = await getData();
-    res.json(data.projects || []);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+try {
+const data = await getData();
+res.json(data.projects || []);
+} catch (err) {
+res.status(500).json({ error: err.message });
+}
 });
 
 app.post("/projects", async (req, res) => {
-  try {
-    const { title, desc, link } = req.body;
-    if (!title || !desc || !link)
-      return res.status(400).json({ error: "Title, description and link required" });
+try {
+const { title, description, imageUrl, liveUrl, githubUrl, tags } = req.body;
+if (!title || !description)
+return res.status(400).json({ error: "Title and description required" });
 
-    let data = await getData();
+let data = await getData();  
 
-    const newProject = {
-      id: Date.now().toString(),
-      title,
-      desc,
-      link,
-      createdAt: new Date().toISOString(),
-    };
+const newProject = {  
+  id: Date.now().toString(),  
+  title,  
+  description,  
+  imageUrl:  
+    imageUrl ||  
+    "https://via.placeholder.com/400x200/1a1a1a/ff5e1a?text=Project+Preview",  
+  liveUrl: liveUrl || "#",  
+  githubUrl: githubUrl || "#",  
+  tags: tags || [],  
+  createdAt: new Date().toISOString(),  
+};  
 
-    data.projects.unshift(newProject);
-    await saveData(data);
+data.projects.unshift(newProject);  
+await saveData(data);  
 
-    res.status(201).json({ success: true, project: newProject });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+res.status(201).json({ success: true, project: newProject });
+
+} catch (err) {
+res.status(500).json({ error: err.message });
+}
 });
 
 // ------------------- USERS -------------------
