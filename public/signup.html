@@ -1,200 +1,425 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Signup - StudioHub</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-<style>
-:root {
-  --bg:#0d0d0d;
-  --accent:#ff5e1a;
-  --accent-2:#ff7f3f;
-  --text:#f5f5f5;
-  font-family:"Segoe UI", Roboto, sans-serif;
-}
-*{margin:0;padding:0;box-sizing:border-box}
-body{
-  background:var(--bg);
-  color:var(--text);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  min-height:100vh;
-  position:relative;
-  overflow:hidden;
-}
-.stars{position:absolute;inset:0;z-index:0;overflow:hidden}
-.star{position:absolute;width:2px;height:2px;background:white;border-radius:50%;opacity:0.85;animation:twinkle 3.5s infinite ease-in-out;filter:drop-shadow(0 0 6px rgba(255,255,255,0.6))}
-@keyframes twinkle{0%,100%{opacity:0.15;transform:scale(0.8)}50%{opacity:1;transform:scale(1.2)}}
-.card{
-  position:relative;
-  z-index:1;
-  max-width:420px;
-  width:92%;
-  padding:36px;
-  background:rgba(20,20,20,0.95);
-  border-radius:18px;
-  box-shadow:0 14px 40px rgba(255,94,26,0.18), inset 0 0 20px rgba(255,94,26,0.02);
-  text-align:center;
-  animation:floatCard 5.5s ease-in-out infinite;
-  transform-style:preserve-3d;
-}
-@keyframes floatCard{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
-h1{
-  font-size:28px;
-  margin-bottom:18px;
-  background:linear-gradient(90deg,var(--accent),var(--accent-2));
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
-}
-.input-group{position:relative;margin:12px 0}
-input{
-  width:100%;
-  padding:12px 44px 12px 14px;
-  border:0;
-  border-radius:12px;
-  background:#0f0f0f;
-  color:var(--text);
-  font-size:15px;
-  outline:none;
-  box-shadow:inset 0 0 12px rgba(255,94,26,0.04);
-}
-input::placeholder{color:#8a8a8a}
-.toggle-pass{
-  position:absolute;
-  right:12px;
-  top:50%;
-  transform:translateY(-50%);
-  cursor:pointer;
-  font-size:18px;
-  color:#ff7f3f;
-  transition:transform .18s;
-}
-.toggle-pass:hover{transform:translateY(-50%) scale(1.12)}
-.btn{
-  padding:12px 18px;
-  border-radius:12px;
-  font-weight:700;
-  cursor:pointer;
-  font-size:15px;
-  transition:transform .18s, box-shadow .18s;
-  border:0;
-}
-.btn-primary{
-  background:linear-gradient(90deg,var(--accent),var(--accent-2));
-  color:#fff;
-  width:100%;
-  margin-top:14px;
-  box-shadow:0 8px 30px rgba(255,94,26,0.14);
-}
-.btn-primary:active{transform:translateY(1px)}
-.link-line{margin-top:14px;color:#bdbdbd;font-size:14px}
-.link-line a{color:var(--accent-2);text-decoration:none;font-weight:700}
-.alert{
-  position:absolute;
-  bottom:-68px;
-  left:50%;
-  transform:translateX(-50%);
-  padding:10px 18px;
-  border-radius:10px;
-  background:green;
-  color:#fff;
-  opacity:0;
-  transition:all .45s;
-  pointer-events:none;
-  box-shadow:0 8px 30px rgba(0,255,0,0.08);
-}
-.alert.show{opacity:1;bottom:-18px}
-.alert.error{background:#e23b3b;box-shadow:0 8px 30px rgba(226,59,59,0.12)}
-@media (max-width:480px){
-  .card{padding:26px;border-radius:14px}
-  h1{font-size:22px}
-  input{font-size:14px}
-}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Signup - StudioHub</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <!-- Google Identity Services -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <style>
+    :root {
+      --bg: #0d0d0d;
+      --accent: #ff5e1a;
+      --accent-2: #ff7f3f;
+      --text: #f5f5f5;
+      --input-bg: #0f0f0f;
+      --card-bg: rgba(20, 20, 20, 0.96);
+      --glow: rgba(255, 94, 26, 0.25);
+      font-family: "Segoe UI", Roboto, system-ui, sans-serif;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      position: relative;
+      overflow: hidden;
+      line-height: 1.6;
+    }
+
+    /* Animated Stars Background */
+    .stars {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+    }
+    .star {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background: white;
+      border-radius: 50%;
+      opacity: 0.85;
+      animation: twinkle 3.5s infinite ease-in-out;
+      filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.6));
+    }
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.15; transform: scale(0.8); }
+      50% { opacity: 1; transform: scale(1.2); }
+    }
+
+    /* Card Container */
+    .card {
+      position: relative;
+      z-index: 1;
+      max-width: 440px;
+      width: 94%;
+      padding: 40px;
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      box-shadow:
+        0 20px 50px rgba(0, 0, 0, 0.5),
+        0 0 30px var(--glow),
+        inset 0 0 20px rgba(255, 94, 26, 0.03);
+      text-align: center;
+      animation: floatCard 6s ease-in-out infinite;
+      transform-style: preserve-3d;
+    }
+    @keyframes floatCard {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-14px); }
+    }
+
+    h1 {
+      font-size: 32px;
+      font-weight: 800;
+      margin-bottom: 24px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .input-group {
+      position: relative;
+      margin: 16px 0;
+    }
+    input {
+      width: 100%;
+      padding: 14px 50px 14px 18px;
+      border: 0;
+      border-radius: 14px;
+      background: var(--input-bg);
+      color: var(--text);
+      font-size: 16px;
+      outline: none;
+      transition: all 0.25s ease;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+    }
+    input:focus {
+      box-shadow:
+        inset 0 0 0 2px var(--accent),
+        0 0 16px var(--glow);
+      background: #141414;
+    }
+    input::placeholder {
+      color: #8a8a8a;
+      transition: color 0.2s;
+    }
+    input:focus::placeholder {
+      color: #aaa;
+    }
+
+    .toggle-pass {
+      position: absolute;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      font-size: 18px;
+      color: #ff7f3f;
+      transition: all 0.2s ease;
+    }
+    .toggle-pass:hover {
+      transform: translateY(-50%) scale(1.15);
+      color: var(--accent);
+    }
+
+    /* Primary Button */
+    .btn {
+      padding: 14px 20px;
+      border-radius: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 16px;
+      transition: all 0.2s ease;
+      border: 0;
+      letter-spacing: 0.5px;
+    }
+    .btn-primary {
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      color: #fff;
+      width: 100%;
+      margin-top: 20px;
+      box-shadow: 0 8px 30px rgba(255, 94, 26, 0.2);
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 36px rgba(255, 94, 26, 0.3);
+    }
+    .btn-primary:active {
+      transform: translateY(1px);
+      box-shadow: 0 4px 20px rgba(255, 94, 26, 0.25);
+    }
+
+    /* Divider & Google Sign-In */
+    .divider {
+      display: flex;
+      align-items: center;
+      margin: 28px 0;
+      color: #666;
+      font-size: 14px;
+      letter-spacing: 1px;
+    }
+    .divider::before,
+    .divider::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: rgba(255, 255, 255, 0.1);
+    }
+    .divider span {
+      padding: 0 12px;
+      font-weight: 500;
+    }
+
+    /* Google Button */
+    #googleSignIn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: #fff;
+      color: #000;
+      font-weight: 600;
+      padding: 12px 20px;
+      border-radius: 14px;
+      cursor: pointer;
+      border: 1px solid #ddd;
+      transition: all 0.2s ease;
+      width: 100%;
+      font-size: 15px;
+    }
+    #googleSignIn:hover {
+      background: #f9f9f9;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+    }
+    #googleSignIn:active {
+      transform: translateY(0);
+    }
+    #googleSignIn i {
+      font-size: 20px;
+    }
+
+    /* Link Line */
+    .link-line {
+      margin-top: 24px;
+      color: #bdbdbd;
+      font-size: 14px;
+    }
+    .link-line a {
+      color: var(--accent-2);
+      text-decoration: none;
+      font-weight: 700;
+      transition: color 0.2s;
+    }
+    .link-line a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+
+    /* Alert Toast */
+    .alert {
+      position: fixed;
+      bottom: -80px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 12px 20px;
+      border-radius: 12px;
+      background: #2e7d32;
+      color: #fff;
+      opacity: 0;
+      transition: all 0.4s cubic-bezier(0.2, 1, 0.2, 1);
+      pointer-events: none;
+      box-shadow: 0 8px 30px rgba(0, 255, 0, 0.12);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 500;
+    }
+    .alert.show {
+      opacity: 1;
+      bottom: 30px;
+    }
+    .alert.error {
+      background: #d32f2f;
+      box-shadow: 0 8px 30px rgba(226, 59, 59, 0.2);
+    }
+
+    /* Responsive */
+    @media (max-width: 480px) {
+      .card {
+        padding: 30px 24px;
+        border-radius: 16px;
+      }
+      h1 {
+        font-size: 26px;
+        margin-bottom: 20px;
+      }
+      input {
+        font-size: 15px;
+        padding: 12px 44px 12px 14px;
+      }
+      .btn {
+        padding: 12px 18px;
+        font-size: 15px;
+      }
+      .divider {
+        margin: 24px 0;
+      }
+    }
+  </style>
 </head>
 <body>
+  <div class="stars" id="stars"></div>
 
-<div class="stars" id="stars"></div>
+  <div class="card" role="main" aria-labelledby="signupTitle">
+    <h1 id="signupTitle">Create Account</h1>
 
-<div class="card" role="main" aria-labelledby="signupTitle">
-  <h1 id="signupTitle">Create Account</h1>
+    <div class="input-group">
+      <input id="username" type="text" placeholder="Username" autocomplete="username" aria-label="Username" />
+    </div>
 
-  <div class="input-group">
-    <input id="username" type="text" placeholder="Username" autocomplete="username" />
+    <div class="input-group">
+      <input id="password" type="password" placeholder="Password" autocomplete="new-password" aria-label="Password" />
+      <i class="fa-solid fa-eye toggle-pass" id="togglePass" title="Show / Hide password" role="button" tabindex="0"></i>
+    </div>
+
+    <button class="btn btn-primary" onclick="signup()">Create Account</button>
+
+    <div class="divider"><span>OR</span></div>
+
+    <div id="googleSignIn">
+      <i class="fab fa-google"></i>
+      <span>Sign up with Google</span>
+    </div>
+
+    <div class="link-line">Already have an account? <a href="login.html">Login</a></div>
+
+    <div class="alert" id="alertBox" role="status" aria-live="polite"></div>
   </div>
 
-  <div class="input-group">
-    <input id="password" type="password" placeholder="Password" autocomplete="new-password" />
-    <i class="fa-solid fa-eye toggle-pass" id="togglePass" title="Show / Hide password"></i>
-  </div>
-
-  <button class="btn btn-primary" onclick="signup()">Create Account</button>
-
-  <div class="link-line">Already have an account? <a href="login.html">Login</a></div>
-
-  <div class="alert" id="alertBox" role="status" aria-live="polite"></div>
-</div>
-
-<script>
-const starsContainer = document.getElementById("stars");
-for(let i=0;i<70;i++){
-  const s = document.createElement("div");
-  s.className = "star";
-  s.style.top = Math.random()*100 + "%";
-  s.style.left = Math.random()*100 + "%";
-  const size = 1 + Math.random()*2;
-  s.style.width = size + "px";
-  s.style.height = size + "px";
-  s.style.animationDuration = (2 + Math.random()*3) + "s";
-  s.style.opacity = 0.4 + Math.random()*0.6;
-  starsContainer.appendChild(s);
-}
-
-const passInput = document.getElementById("password");
-const togglePass = document.getElementById("togglePass");
-togglePass.addEventListener("click", () => {
-  if(passInput.type === "password"){
-    passInput.type = "text";
-    togglePass.classList.replace("fa-eye","fa-eye-slash");
-    togglePass.setAttribute("title","Hide password");
-  } else {
-    passInput.type = "password";
-    togglePass.classList.replace("fa-eye-slash","fa-eye");
-    togglePass.setAttribute("title","Show password");
-  }
-});
-
-async function signup(){
-  const uname = document.getElementById("username").value.trim();
-  const pwd = document.getElementById("password").value.trim();
-  if(!uname || !pwd){ showAlert("Fill all fields", true); return; }
-
-  try{
-    const res = await fetch("/signup", {
-      method: "POST",
-      headers: { "Content-Type":"application/json" },
-      body: JSON.stringify({ username: uname, password: pwd })
-    });
-    const data = await res.json();
-    if(data.success){
-      showAlert("Account created successfully!", false);
-      setTimeout(()=> window.location.href = "login.html", 1300);
-    } else {
-      showAlert(data.error || "Error creating account", true);
+  <script>
+    // Generate Stars
+    const starsContainer = document.getElementById("stars");
+    for (let i = 0; i < 100; i++) {
+      const s = document.createElement("div");
+      s.className = "star";
+      s.style.top = Math.random() * 100 + "%";
+      s.style.left = Math.random() * 100 + "%";
+      const size = 1 + Math.random() * 2.5;
+      s.style.width = size + "px";
+      s.style.height = size + "px";
+      s.style.animationDuration = (2 + Math.random() * 4) + "s";
+      s.style.opacity = 0.3 + Math.random() * 0.7;
+      starsContainer.appendChild(s);
     }
-  } catch(err){
-    showAlert("Server error", true);
-  }
-}
 
-function showAlert(msg, isError){
-  const box = document.getElementById("alertBox");
-  box.textContent = msg;
-  box.className = "alert show" + (isError ? " error" : "");
-  setTimeout(()=> box.className = "alert", 2600);
-}
-</script>
+    // Toggle Password Visibility
+    const passInput = document.getElementById("password");
+    const togglePass = document.getElementById("togglePass");
+    togglePass.addEventListener("click", () => {
+      if (passInput.type === "password") {
+        passInput.type = "text";
+        togglePass.classList.replace("fa-eye", "fa-eye-slash");
+        togglePass.setAttribute("title", "Hide password");
+      } else {
+        passInput.type = "password";
+        togglePass.classList.replace("fa-eye-slash", "fa-eye");
+        togglePass.setAttribute("title", "Show password");
+      }
+    });
+
+    // Google Sign-In
+    document.getElementById("googleSignIn").addEventListener("click", () => {
+      // Load Google Identity Services dynamically if not already loaded
+      if (!window.google || !window.google.accounts) {
+        showAlert("Loading Google services...", false);
+        return;
+      }
+
+      window.google.accounts.id.initialize({
+        client_id: "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com", // 🔥 REPLACE THIS
+        callback: handleGoogleCredentialResponse
+      });
+
+      window.google.accounts.id.prompt(); // or use .renderButton for custom button
+    });
+
+    function handleGoogleCredentialResponse(response) {
+      // Send ID token to your backend
+      const credential = response.credential;
+      fetch("/signup-google", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id_token: credential })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          showAlert("Signed up with Google successfully!", false);
+          setTimeout(() => window.location.href = "dashboard.html", 1500);
+        } else {
+          showAlert(data.error || "Google signup failed", true);
+        }
+      })
+      .catch(() => {
+        showAlert("Network error during Google signup", true);
+      });
+    }
+
+    // Traditional Signup
+    async function signup() {
+      const uname = document.getElementById("username").value.trim();
+      const pwd = document.getElementById("password").value.trim();
+      if (!uname || !pwd) {
+        showAlert("Please fill all fields", true);
+        return;
+      }
+
+      try {
+        const res = await fetch("/signup", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username: uname, password: pwd })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showAlert("Account created successfully!", false);
+          setTimeout(() => window.location.href = "login.html", 1500);
+        } else {
+          showAlert(data.error || "Error creating account", true);
+        }
+      } catch (err) {
+        showAlert("Server error. Please try again.", true);
+      }
+    }
+
+    // Alert System
+    function showAlert(msg, isError) {
+      const box = document.getElementById("alertBox");
+      box.textContent = msg;
+      box.className = "alert show" + (isError ? " error" : "");
+      setTimeout(() => box.className = "alert", 3000);
+    }
+
+    // Optional: Initialize Google button after load
+    window.onload = () => {
+      if (window.google && window.google.accounts) {
+        // You can render a button here if you prefer Google's button
+        // But we're using custom button for design consistency
+      }
+    };
+  </script>
 </body>
 </html>
