@@ -16,6 +16,7 @@
       --input-bg: #0f0f0f;
       --card-bg: rgba(20, 20, 20, 0.96);
       --glow: rgba(255, 94, 26, 0.25);
+      --google: #ea4335;
       font-family: "Segoe UI", Roboto, system-ui, sans-serif;
     }
 
@@ -32,7 +33,7 @@
       line-height: 1.6;
     }
 
-    /* Animated Stars Background */
+    /* Animated Stars */
     .stars {
       position: absolute;
       inset: 0;
@@ -54,7 +55,7 @@
       50% { opacity: 1; transform: scale(1.2); }
     }
 
-    /* Card Container */
+    /* Card */
     .card {
       position: relative;
       z-index: 1;
@@ -133,7 +134,6 @@
       color: var(--accent);
     }
 
-    /* Primary Button */
     .btn {
       padding: 14px 20px;
       border-radius: 14px;
@@ -143,12 +143,12 @@
       transition: all 0.2s ease;
       border: 0;
       letter-spacing: 0.5px;
+      width: 100%;
+      margin-top: 20px;
     }
     .btn-primary {
       background: linear-gradient(90deg, var(--accent), var(--accent-2));
       color: #fff;
-      width: 100%;
-      margin-top: 20px;
       box-shadow: 0 8px 30px rgba(255, 94, 26, 0.2);
     }
     .btn-primary:hover {
@@ -160,57 +160,40 @@
       box-shadow: 0 4px 20px rgba(255, 94, 26, 0.25);
     }
 
-    /* Divider & Google Sign-In */
-    .divider {
-      display: flex;
-      align-items: center;
-      margin: 28px 0;
-      color: #666;
-      font-size: 14px;
-      letter-spacing: 1px;
+    /* Google Icon Only */
+    .social-icons {
+      margin: 28px 0 20px;
     }
-    .divider::before,
-    .divider::after {
-      content: "";
-      flex: 1;
-      height: 1px;
-      background: rgba(255, 255, 255, 0.1);
-    }
-    .divider span {
-      padding: 0 12px;
-      font-weight: 500;
-    }
-
-    /* Google Button */
-    #googleSignIn {
+    .google-icon {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 10px;
-      background: #fff;
-      color: #000;
-      font-weight: 600;
-      padding: 12px 20px;
-      border-radius: 14px;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: white;
+      color: var(--google);
+      font-size: 22px;
       cursor: pointer;
-      border: 1px solid #ddd;
-      transition: all 0.2s ease;
-      width: 100%;
-      font-size: 15px;
+      transition: all 0.25s ease;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     }
-    #googleSignIn:hover {
-      background: #f9f9f9;
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+    .google-icon:hover {
+      transform: translateY(-3px) scale(1.08);
+      box-shadow: 0 8px 20px rgba(234, 67, 53, 0.3);
     }
-    #googleSignIn:active {
-      transform: translateY(0);
-    }
-    #googleSignIn i {
-      font-size: 20px;
+    .google-icon:active {
+      transform: translateY(0) scale(1);
     }
 
-    /* Link Line */
+    .divider-or {
+      color: #666;
+      font-size: 14px;
+      margin: 16px 0;
+      letter-spacing: 1px;
+      font-weight: 500;
+    }
+
     .link-line {
       margin-top: 24px;
       color: #bdbdbd;
@@ -242,9 +225,6 @@
       pointer-events: none;
       box-shadow: 0 8px 30px rgba(0, 255, 0, 0.12);
       z-index: 1000;
-      display: flex;
-      align-items: center;
-      gap: 8px;
       font-weight: 500;
     }
     .alert.show {
@@ -256,7 +236,6 @@
       box-shadow: 0 8px 30px rgba(226, 59, 59, 0.2);
     }
 
-    /* Responsive */
     @media (max-width: 480px) {
       .card {
         padding: 30px 24px;
@@ -274,8 +253,10 @@
         padding: 12px 18px;
         font-size: 15px;
       }
-      .divider {
-        margin: 24px 0;
+      .google-icon {
+        width: 44px;
+        height: 44px;
+        font-size: 20px;
       }
     }
   </style>
@@ -297,11 +278,12 @@
 
     <button class="btn btn-primary" onclick="signup()">Create Account</button>
 
-    <div class="divider"><span>OR</span></div>
+    <div class="divider-or">or continue with</div>
 
-    <div id="googleSignIn">
-      <i class="fab fa-google"></i>
-      <span>Sign up with Google</span>
+    <div class="social-icons">
+      <div class="google-icon" id="googleIcon" title="Sign up with Google">
+        <i class="fab fa-google"></i>
+      </div>
     </div>
 
     <div class="link-line">Already have an account? <a href="login.html">Login</a></div>
@@ -325,7 +307,7 @@
       starsContainer.appendChild(s);
     }
 
-    // Toggle Password Visibility
+    // Toggle Password
     const passInput = document.getElementById("password");
     const togglePass = document.getElementById("togglePass");
     togglePass.addEventListener("click", () => {
@@ -341,23 +323,58 @@
     });
 
     // Google Sign-In
-    document.getElementById("googleSignIn").addEventListener("click", () => {
-      // Load Google Identity Services dynamically if not already loaded
+    let googleInitialized = false;
+
+    function initGoogle() {
       if (!window.google || !window.google.accounts) {
-        showAlert("Loading Google services...", false);
+        setTimeout(initGoogle, 200); // Retry until loaded
         return;
       }
 
       window.google.accounts.id.initialize({
         client_id: "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com", // 🔥 REPLACE THIS
-        callback: handleGoogleCredentialResponse
+        callback: handleGoogleCredentialResponse,
+        cancel_on_tap_outside: true,
+        prompt_parent_id: null
       });
 
-      window.google.accounts.id.prompt(); // or use .renderButton for custom button
+      googleInitialized = true;
+    }
+
+    // Initialize Google when library is ready
+    window.onload = initGoogle;
+
+    const googleIcon = document.getElementById("googleIcon");
+    googleIcon.addEventListener("click", () => {
+      if (!googleInitialized) {
+        showAlert("Loading Google...", false);
+        setTimeout(() => {
+          if (googleInitialized) {
+            triggerGoogle();
+          } else {
+            showAlert("Google services not ready. Try again.", true);
+          }
+        }, 800);
+        return;
+      }
+      triggerGoogle();
     });
 
+    function triggerGoogle() {
+      // Show Google One Tap prompt
+      window.google.accounts.id.prompt((notification) => {
+        if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+          showAlert("Google sign-in unavailable. Try again later.", true);
+        }
+      });
+    }
+
     function handleGoogleCredentialResponse(response) {
-      // Send ID token to your backend
+      if (!response || !response.credential) {
+        showAlert("Google sign-in failed", true);
+        return;
+      }
+
       const credential = response.credential;
       fetch("/signup-google", {
         method: "POST",
@@ -367,7 +384,7 @@
       .then(res => res.json())
       .then(data => {
         if (data.success) {
-          showAlert("Signed up with Google successfully!", false);
+          showAlert("Signed up with Google!", false);
           setTimeout(() => window.location.href = "dashboard.html", 1500);
         } else {
           showAlert(data.error || "Google signup failed", true);
@@ -412,14 +429,6 @@
       box.className = "alert show" + (isError ? " error" : "");
       setTimeout(() => box.className = "alert", 3000);
     }
-
-    // Optional: Initialize Google button after load
-    window.onload = () => {
-      if (window.google && window.google.accounts) {
-        // You can render a button here if you prefer Google's button
-        // But we're using custom button for design consistency
-      }
-    };
   </script>
 </body>
 </html>
