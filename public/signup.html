@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Signup - StudioHub | Next-Gen Experience</title>
+  <title>Signup - StudioHub | Cosmic Edition</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
@@ -21,11 +21,9 @@
       --input-focus: var(--accent);
       --error: #e53935;
       --success: #43a047;
-      --warning: #ffb300;
       --shadow: 0 30px 80px rgba(0, 0, 0, 0.7);
       --transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
       --radius: 24px;
-      --card-scale: 1;
     }
 
     * {
@@ -76,7 +74,6 @@
       border-radius: var(--radius);
       border: 1px solid rgba(255, 255, 255, 0.06);
       box-shadow: var(--shadow), 0 0 50px var(--accent-glow);
-      transform: scale(var(--card-scale));
       transform-style: preserve-3d;
       transition: var(--transition);
       overflow: hidden;
@@ -188,30 +185,6 @@
     .toggle-password:hover {
       color: var(--accent);
       transform: translateY(-50%) scale(1.15);
-    }
-
-    /* 🔋 PASSWORD STRENGTH */
-    .password-strength {
-      margin-top: 8px;
-      height: 6px;
-      background: #333;
-      border-radius: 3px;
-      overflow: hidden;
-    }
-
-    .password-strength-bar {
-      height: 100%;
-      width: 0%;
-      transition: var(--transition);
-      border-radius: 3px;
-    }
-
-    .password-strength-text {
-      font-size: 0.8rem;
-      margin-top: 4px;
-      text-align: right;
-      color: var(--text-secondary);
-      font-weight: 500;
     }
 
     /* ✅ CHECKBOX */
@@ -398,11 +371,6 @@
       background: var(--error);
     }
 
-    .alert.warning {
-      background: var(--warning);
-      color: #000;
-    }
-
     /* 🌀 LOADING SPINNER */
     .spinner {
       display: inline-block;
@@ -582,6 +550,12 @@
     ::-webkit-scrollbar-thumb:hover {
       background: #ff7f3f;
     }
+
+    /* 🖱️ 3D TILT EFFECT */
+    .tilt-effect {
+      transform-style: preserve-3d;
+      transition: transform 0.1s ease-out;
+    }
   </style>
 </head>
 <body>
@@ -593,7 +567,7 @@
   <div id="particles-js"></div>
 
   <!-- ✨ SIGNUP CARD -->
-  <div class="signup-card" id="signupCard">
+  <div class="signup-card tilt-effect" id="signupCard">
     <div class="title-container">
       <h1 class="title" id="animatedTitle">Create Account</h1>
     </div>
@@ -601,32 +575,22 @@
     <form id="signupForm" novalidate>
       <div class="form-group">
         <label for="username" class="form-label">Username</label>
-        <input type="text" id="username" class="form-control" placeholder="Choose a unique username" autocomplete="username" required>
-        <div class="form-hint" id="usernameHint" style="font-size: 0.8rem; margin-top: 6px; color: var(--text-secondary);"></div>
-      </div>
-
-      <div class="form-group">
-        <label for="email" class="form-label">Email Address</label>
-        <input type="email" id="email" class="form-control" placeholder="your@email.com" autocomplete="email" required>
+        <input type="text" id="username" class="form-control" placeholder="Choose your handle" autocomplete="username" required>
       </div>
 
       <div class="form-group">
         <label for="password" class="form-label">Password</label>
         <div class="password-wrapper">
-          <input type="password" id="password" class="form-control" placeholder="Create a strong password" autocomplete="new-password" required>
+          <input type="password" id="password" class="form-control" placeholder="Set your password" autocomplete="new-password" required>
           <button type="button" class="toggle-password" id="togglePassword">
             <i class="fa-solid fa-eye"></i>
           </button>
         </div>
-        <div class="password-strength">
-          <div class="password-strength-bar" id="strengthBar"></div>
-        </div>
-        <div class="password-strength-text" id="strengthText">Too weak</div>
       </div>
 
       <div class="form-group">
         <label for="confirmPassword" class="form-label">Confirm Password</label>
-        <input type="password" id="confirmPassword" class="form-control" placeholder="Repeat your password" required>
+        <input type="password" id="confirmPassword" class="form-control" placeholder="Repeat password" required>
         <div class="form-hint" id="confirmHint" style="font-size: 0.8rem; margin-top: 6px; color: var(--text-secondary);"></div>
       </div>
 
@@ -656,7 +620,18 @@
     <div class="modal">
       <h3 class="modal-title">Terms of Service</h3>
       <div class="modal-content" id="modalContent">
-        <!-- Dynamically filled -->
+        <p><strong>Terms of Service</strong></p>
+        <p>Welcome to StudioHub. By accessing our service, you agree to comply with these terms.</p>
+        <p>We reserve the right to modify these terms at any time. Your continued use constitutes acceptance.</p>
+        <p>You must be 13+ to use this service. You agree not to abuse, spam, or attempt to hack the platform.</p>
+        <p>All content you upload must be yours or legally usable. We are not liable for user-generated content.</p>
+        <p>We may terminate accounts violating these terms without notice.</p>
+        <br>
+        <p><strong>Privacy Policy</strong></p>
+        <p>We collect only essential data: username and preferences. We do not sell your data.</p>
+        <p>Your password is encrypted and never stored in plain text. We use cookies for session management.</p>
+        <p>You may request data deletion at any time. We retain logs for 30 days for security purposes.</p>
+        <p>By signing up, you consent to this policy.</p>
       </div>
       <div class="modal-footer">
         <button class="btn-modal btn-close" id="closeModal">Close</button>
@@ -677,7 +652,7 @@
     document.addEventListener('DOMContentLoaded', () => {
       particlesJS('particles-js', {
         "particles": {
-          "number": { "value": 80, "density": { "enable": true, "value_area": 800 } },
+          "number": { "value": 70, "density": { "enable": true, "value_area": 800 } },
           "color": { "value": "#ff5e1a" },
           "shape": {
             "type": "circle",
@@ -698,7 +673,7 @@
             "enable": true,
             "distance": 150,
             "color": "#ff5e1a",
-            "opacity": 0.18,
+            "opacity": 0.15,
             "width": 1
           },
           "move": {
@@ -752,112 +727,41 @@
       togglePassword.innerHTML = type === 'password' ? '<i class="fa-solid fa-eye"></i>' : '<i class="fa-solid fa-eye-slash"></i>';
     });
 
-    // 🔋 PASSWORD STRENGTH METER
-    const strengthBar = document.getElementById('strengthBar');
-    const strengthText = document.getElementById('strengthText');
-
-    passwordInput.addEventListener('input', () => {
-      const value = passwordInput.value;
-      let strength = 0;
-
-      if (value.length >= 8) strength++;
-      if (value.match(/[a-z]/)) strength++;
-      if (value.match(/[A-Z]/)) strength++;
-      if (value.match(/[0-9]/)) strength++;
-      if (value.match(/[^a-zA-Z0-9]/)) strength++;
-
-      const width = (strength / 5) * 100;
-      strengthBar.style.width = `${width}%`;
-
-      if (strength <= 2) {
-        strengthBar.style.background = '#e53935';
-        strengthText.textContent = 'Too weak';
-      } else if (strength <= 3) {
-        strengthBar.style.background = '#ffb300';
-        strengthText.textContent = 'Fair';
-      } else if (strength <= 4) {
-        strengthBar.style.background = '#43a047';
-        strengthText.textContent = 'Good';
-      } else {
-        strengthBar.style.background = '#1e88e5';
-        strengthText.textContent = 'Strong';
-      }
-    });
-
-    // 🔍 USERNAME AVAILABILITY (SIMULATED)
-    const usernameInput = document.getElementById('username');
-    const usernameHint = document.getElementById('usernameHint');
-
-    usernameInput.addEventListener('input', () => {
-      const value = usernameInput.value.trim();
-      if (value.length < 3) {
-        usernameHint.textContent = 'Username must be at least 3 characters';
-        usernameHint.style.color = '#e53935';
-        return;
-      }
-
-      usernameHint.textContent = 'Checking availability...';
-      usernameHint.style.color = '#ffb300';
-
-      // Simulate API delay
-      setTimeout(() => {
-        const takenUsernames = ['admin', 'user', 'test', 'demo', 'root'];
-        if (takenUsernames.includes(value.toLowerCase())) {
-          usernameHint.textContent = 'Username taken. Try another.';
-          usernameHint.style.color = '#e53935';
-        } else {
-          usernameHint.textContent = 'Username available!';
-          usernameHint.style.color = '#43a047';
-        }
-      }, 800);
-    });
-
     // 🔄 CONFIRM PASSWORD VALIDATION
     const confirmPasswordInput = document.getElementById('confirmPassword');
     const confirmHint = document.getElementById('confirmHint');
 
-    confirmPasswordInput.addEventListener('input', () => {
+    function validatePasswordMatch() {
+      if (confirmPasswordInput.value === '') {
+        confirmHint.textContent = '';
+        return;
+      }
       if (confirmPasswordInput.value !== passwordInput.value) {
         confirmHint.textContent = 'Passwords do not match';
         confirmHint.style.color = '#e53935';
       } else {
-        confirmHint.textContent = 'Passwords match';
+        confirmHint.textContent = '✓ Looks good';
         confirmHint.style.color = '#43a047';
       }
-    });
+    }
+
+    confirmPasswordInput.addEventListener('input', validatePasswordMatch);
+    passwordInput.addEventListener('input', validatePasswordMatch);
 
     // 📜 TERMS MODAL
     const termsModal = document.getElementById('termsModal');
-    const modalContent = document.getElementById('modalContent');
     const closeModalBtn = document.getElementById('closeModal');
     const agreeTermsBtn = document.getElementById('agreeTerms');
     const termsLink = document.getElementById('termsLink');
     const privacyLink = document.getElementById('privacyLink');
 
-    const termsText = `
-      <p><strong>Terms of Service</strong></p>
-      <p>Welcome to StudioHub. By accessing our service, you agree to comply with these terms.</p>
-      <p>We reserve the right to modify these terms at any time. Your continued use constitutes acceptance.</p>
-      <p>You must be 13+ to use this service. You agree not to abuse, spam, or attempt to hack the platform.</p>
-      <p>All content you upload must be yours or legally usable. We are not liable for user-generated content.</p>
-      <p>We may terminate accounts violating these terms without notice.</p>
-      <br>
-      <p><strong>Privacy Policy</strong></p>
-      <p>We collect only essential data: username, email, and preferences. We do not sell your data.</p>
-      <p>Your password is encrypted and never stored in plain text. We use cookies for session management.</p>
-      <p>You may request data deletion at any time. We retain logs for 30 days for security purposes.</p>
-      <p>By signing up, you consent to this policy.</p>
-    `;
-
     termsLink.addEventListener('click', (e) => {
       e.preventDefault();
-      modalContent.innerHTML = termsText;
       termsModal.classList.add('show');
     });
 
     privacyLink.addEventListener('click', (e) => {
       e.preventDefault();
-      modalContent.innerHTML = termsText;
       termsModal.classList.add('show');
     });
 
@@ -905,10 +809,7 @@
         setTimeout(() => {
           // window.location.href = 'dashboard.html';
           form.reset();
-          strengthBar.style.width = '0%';
-          strengthText.textContent = 'Too weak';
-          document.getElementById('usernameHint').textContent = '';
-          document.getElementById('confirmHint').textContent = '';
+          confirmHint.textContent = '';
         }, 2000);
       }, 2500);
     });
@@ -931,7 +832,7 @@
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
 
-      const confettiCount = 200;
+      const confettiCount = 180;
       const confetti = [];
 
       for (let i = 0; i < confettiCount; i++) {
@@ -939,7 +840,7 @@
           x: Math.random() * canvas.width,
           y: Math.random() * -canvas.height,
           size: Math.random() * 8 + 5,
-          color: ['#ff5e1a', '#ff7f3f', '#ffffff', '#f5f5f5'][Math.floor(Math.random() * 4)],
+          color: ['#ff5e1a', '#ff7f3f', '#ffffff'][Math.floor(Math.random() * 3)],
           speed: Math.random() * 3 + 2,
           rotation: Math.random() * 360,
           rotationSpeed: (Math.random() - 0.5) * 10
@@ -979,13 +880,13 @@
     // 🖱️ 3D CARD TILT EFFECT
     const card = document.getElementById('signupCard');
     card.addEventListener('mousemove', (e) => {
-      const xAxis = (window.innerWidth / 2 - e.pageX) / 25;
-      const yAxis = (window.innerHeight / 2 - e.pageY) / 25;
-      card.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg) scale(1.03)`;
+      const xAxis = (window.innerWidth / 2 - e.pageX) / 30;
+      const yAxis = (window.innerHeight / 2 - e.pageY) / 30;
+      card.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
     });
 
     card.addEventListener('mouseleave', () => {
-      card.style.transform = 'rotateY(0deg) rotateX(0deg) scale(1)';
+      card.style.transform = 'rotateY(0deg) rotateX(0deg)';
     });
 
     // 📱 RESPONSIVE CANVAS RESIZE
@@ -1006,8 +907,8 @@
 
     // 🧭 AUTO FOCUS FIRST INPUT
     setTimeout(() => {
-      usernameInput.focus();
-    }, 1000);
+      document.getElementById('username').focus();
+    }, 800);
   </script>
 </body>
 </html>
