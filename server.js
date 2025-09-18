@@ -99,6 +99,30 @@ app.post('/projects', async (req, res) => {
   }
 });
 
+// ✅ codes routes متاعك (ما مسستهاش)
+app.get("/codes", async (req, res) => {
+  try {
+    const data = await getData();
+    res.json(data.codes || []);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post("/codes", async (req, res) => {
+  try {
+    const { title, code } = req.body;
+    let data = await getData();
+
+    data.codes.unshift({ title, code, createdAt: new Date().toISOString() });
+    await saveData(data);
+
+    res.json({ success: true, codes: data.codes });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // 🏠 Serve Pages
 app.get('/projects.html', (req, res) => {
   res.sendFile(__dirname + '/public/projects.html');
