@@ -27,10 +27,8 @@
       padding: 40px 20px;
       min-height: 100vh;
       position: relative;
-      /* ✅ REMOVED: overflow: hidden; */
     }
 
-    /* 🌌 PARTICLES */
     #particles-js {
       position: fixed;
       top: 0;
@@ -41,7 +39,6 @@
       opacity: 0.3;
     }
 
-    /* 🚀 CREATE PROJECT BUTTON */
     .create-btn {
       position: fixed;
       top: 30px;
@@ -61,22 +58,10 @@
       font-size: 0.95rem;
     }
 
-    .create-btn:hover {
-      transform: translateY(-3px) scale(1.05);
-      box-shadow: 0 12px 40px rgba(255, 94, 26, 0.6);
-    }
+    .create-btn:hover { transform: translateY(-3px) scale(1.05); }
+    .create-btn:active { transform: translateY(0) scale(1); }
 
-    .create-btn:active {
-      transform: translateY(0) scale(1);
-    }
-
-    /* 🎯 HEADER */
-    .header {
-      text-align: center;
-      margin-bottom: 50px;
-      position: relative;
-    }
-
+    .header { text-align: center; margin-bottom: 50px; position: relative; }
     .header h1 {
       font-size: 3rem;
       font-weight: 800;
@@ -85,7 +70,6 @@
       -webkit-text-fill-color: transparent;
       display: inline-block;
     }
-
     .header::after {
       content: '';
       display: block;
@@ -96,7 +80,6 @@
       border-radius: 2px;
     }
 
-    /* 🧩 GRID */
     .projects-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -105,7 +88,6 @@
       margin: 0 auto;
     }
 
-    /* 🖼️ CARD */
     .project-card {
       background: var(--card-bg);
       border-radius: 20px;
@@ -128,31 +110,11 @@
       border-bottom: 2px solid rgba(255, 94, 26, 0.3);
     }
 
-    .project-content {
-      padding: 24px;
-    }
+    .project-content { padding: 24px; }
+    .project-title { font-size: 1.4rem; font-weight: 700; margin-bottom: 12px; }
+    .project-description { font-size: 0.95rem; color: var(--text-secondary); margin-bottom: 20px; line-height: 1.6; }
 
-    .project-title {
-      font-size: 1.4rem;
-      font-weight: 700;
-      margin-bottom: 12px;
-      color: var(--text);
-    }
-
-    .project-description {
-      font-size: 0.95rem;
-      color: var(--text-secondary);
-      margin-bottom: 20px;
-      line-height: 1.6;
-    }
-
-    .project-tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 20px;
-    }
-
+    .project-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
     .tag {
       background: rgba(255, 94, 26, 0.15);
       color: var(--accent-light);
@@ -162,51 +124,14 @@
       font-weight: 600;
     }
 
-    .project-links {
-      display: flex;
-      gap: 16px;
-    }
+    .project-links { display: flex; gap: 16px; }
+    .btn { padding: 10px 20px; border-radius: 12px; font-weight: 600; text-decoration: none; transition: var(--transition); font-size: 0.9rem; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-live { background: var(--accent); color: white; }
+    .btn-live:hover { background: var(--accent-light); transform: scale(1.05); }
+    .btn-github { background: #333; color: white; }
+    .btn-github:hover { background: #444; transform: scale(1.05); }
 
-    .btn {
-      padding: 10px 20px;
-      border-radius: 12px;
-      font-weight: 600;
-      text-decoration: none;
-      transition: var(--transition);
-      font-size: 0.9rem;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .btn-live {
-      background: var(--accent);
-      color: white;
-    }
-
-    .btn-live:hover {
-      background: var(--accent-light);
-      transform: scale(1.05);
-    }
-
-    .btn-github {
-      background: #333;
-      color: white;
-    }
-
-    .btn-github:hover {
-      background: #444;
-      transform: scale(1.05);
-    }
-
-    /* 🌀 LOADER */
-    .loader {
-      text-align: center;
-      padding: 60px;
-      font-size: 1.2rem;
-      color: var(--text-secondary);
-    }
-
+    .loader { text-align: center; padding: 60px; font-size: 1.2rem; color: var(--text-secondary); }
     .spinner {
       display: inline-block;
       width: 30px;
@@ -217,49 +142,24 @@
       animation: spin 1s ease-in-out infinite;
       margin-bottom: 20px;
     }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    /* 📱 RESPONSIVE */
     @media (max-width: 768px) {
-      body {
-        padding: 30px 16px;
-      }
-      .create-btn {
-        top: 20px;
-        right: 20px;
-        padding: 12px 20px;
-        font-size: 0.9rem;
-      }
-      .projects-grid {
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 20px;
-      }
-      .header h1 {
-        font-size: 2.2rem;
-      }
+      body { padding: 30px 16px; }
+      .create-btn { top: 20px; right: 20px; padding: 12px 20px; font-size: 0.9rem; }
+      .projects-grid { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+      .header h1 { font-size: 2.2rem; }
     }
-
     @media (max-width: 480px) {
-      .create-btn {
-        padding: 10px 16px;
-        font-size: 0.85rem;
-      }
-      .project-content {
-        padding: 18px;
-      }
-      .project-title {
-        font-size: 1.2rem;
-      }
+      .create-btn { padding: 10px 16px; font-size: 0.85rem; }
+      .project-content { padding: 18px; }
+      .project-title { font-size: 1.2rem; }
     }
   </style>
 </head>
 <body>
   <div id="particles-js"></div>
 
-  <!-- ✅ ADDED BUTTON -->
   <a href="buy-projects.html" class="create-btn">
     <i class="fas fa-plus"></i> Create Your Own Project
   </a>
@@ -275,10 +175,8 @@
     </div>
   </div>
 
-  <!-- 🎨 SCRIPTS -->
   <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
   <script>
-    // 🌌 PARTICLES
     document.addEventListener('DOMContentLoaded', () => {
       particlesJS('particles-js', {
         "particles": {
@@ -295,7 +193,6 @@
       });
     });
 
-    // 📥 FETCH PROJECTS
     async function loadProjects() {
       try {
         const res = await fetch('/projects');
@@ -305,7 +202,7 @@
         const container = document.getElementById('projectsContainer');
         container.innerHTML = '';
 
-        if (projects.length === 0) {
+        if (!projects || projects.length === 0) {
           container.innerHTML = `<div class="loader">No projects yet. Check back later!</div>`;
           return;
         }
@@ -314,20 +211,19 @@
           const card = document.createElement('div');
           card.className = 'project-card';
           card.innerHTML = `
-            <img src="${project.imageUrl}" alt="${project.title}" class="project-image">
+            <img src="${project.imageUrl || 'https://via.placeholder.com/400x200?text=No+Image'}" 
+                 alt="${project.title || 'Untitled'}" class="project-image">
             <div class="project-content">
-              <h3 class="project-title">${project.title}</h3>
-              <p class="project-description">${project.description}</p>
+              <h3 class="project-title">${project.title || 'Untitled Project'}</h3>
+              <p class="project-description">${project.description || 'No description provided.'}</p>
               <div class="project-tags">
-                ${project.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                ${(project.tags && project.tags.length) ? 
+                  project.tags.map(tag => `<span class="tag">${tag}</span>`).join('') : 
+                  `<span class="tag">No tags</span>`}
               </div>
               <div class="project-links">
-                <a href="${project.liveUrl}" target="_blank" class="btn btn-live">
-                  <i class="fas fa-rocket"></i> Live Demo
-                </a>
-                <a href="${project.githubUrl}" target="_blank" class="btn btn-github">
-                  <i class="fab fa-github"></i> Code
-                </a>
+                ${project.liveUrl ? `<a href="${project.liveUrl}" target="_blank" class="btn btn-live"><i class="fas fa-rocket"></i> Live Demo</a>` : ''}
+                ${project.githubUrl ? `<a href="${project.githubUrl}" target="_blank" class="btn btn-github"><i class="fab fa-github"></i> Code</a>` : ''}
               </div>
             </div>
           `;
@@ -343,7 +239,6 @@
       }
     }
 
-    // 🚀 INIT
     window.addEventListener('load', loadProjects);
   </script>
 </body>
