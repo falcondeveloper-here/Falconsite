@@ -62,22 +62,17 @@ app.get("/projects", async (req, res) => {
 
 app.post("/projects", async (req, res) => {
   try {
-    const { title, description, imageUrl, liveUrl, githubUrl, tags } = req.body;
-    if (!title || !description)
-      return res.status(400).json({ error: "Title and description required" });
+    const { title, desc, link } = req.body;
+    if (!title || !desc || !link)
+      return res.status(400).json({ error: "Title, description and link required" });
 
     let data = await getData();
 
     const newProject = {
       id: Date.now().toString(),
       title,
-      description,
-      imageUrl:
-        imageUrl ||
-        "https://via.placeholder.com/400x200/1a1a1a/ff5e1a?text=Project+Preview",
-      liveUrl: liveUrl || "#",
-      githubUrl: githubUrl || "#",
-      tags: tags || [],
+      desc,
+      link,
       createdAt: new Date().toISOString(),
     };
 
