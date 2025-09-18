@@ -1,87 +1,151 @@
-// 📁 server.js — مع users, projects, codes
-const express = require('express');
-const cors = require('cors');
-const fetch = require('node-fetch'); // لازم تثبّتو: npm i node-fetch
+// 📁 server.js — StudioHub with Single JSONBin
+import express from "express";
+import cors from "cors";
+import fetch from "node-fetch";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 10000;
 
 // Middleware
 app.use(cors());
 app.use(express.json());
-app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, "public")));
 
-// 🔑 JSONBIN CREDENTIALS
-const BIN_ID = "68cc0a3a43b1c97be9473409";
-const API_KEY = "$2a$10$mM1Xopbp8M3zQa74yx4JsO1IK337iMzP1pg3mKJe5nzvjhWlZEHH.";
+// 🔑 JSONBIN CONFIG
+const BIN_ID = "68cc0a3a43b1c97be9473409"; // Bin واحد
+const API_KEY =
+  "$2a$10$mM1Xopbp8M3zQa74yx4JsO1IK337iMzP1pg3mKJe5nzvjhWlZEHH.";
 const JSONBIN_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
 
-// 🔧 Helpers
+// ------------------- Helpers -------------------
 async function getData() {
-  const response = await fetch(JSONBIN_URL + "/latest", {
-    headers: { "X-Master-Key": API_KEY }
+  const response = await fetch(JSONBIN_URL, {
+    method: "GET",
+    headers: {
+      "X-Master-Key": API_KEY,
+      "X-Access-Key": API_KEY,
+    },
   });
-  if (!response.ok) throw new Error("Failed to fetch from JSONBin");
+  if (!response.ok) throw new Error(`Fetch failed: ${response.statusText}`);
   const data = await response.json();
-  return data.record || { projects: [], codes: [], users: [] };
+  return data.record || { projects: [], users: [], codes: [] };
 }
 
-async function saveData(data) {
+async function saveData(newData) {
   const response = await fetch(JSONBIN_URL, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
-      "X-Master-Key": API_KEY
+      "X-Master-Key": API_KEY,
+      "X-Access-Key": API_KEY,
     },
-    body: JSON.stringify(data)
+    body: JSON.stringify(newData),
   });
-  if (!response.ok) throw new Error("Failed to save to JSONBin");
+  if (!response.ok) throw new Error(`Save failed: ${response.statusText}`);
+  return response.json();
 }
 
-// 🌐 PROJECTS
-app.get('/projects', async (req, res) => {
+// ------------------- PROJECTS -------------------
+app.get("/projects", async (req, res) => {
   try {
     const data = await getData();
     res.json(data.projects || []);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Failed to load projects' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
 
-app.post('/projects', async (req, res) => {
+app.post("/projects", async (req, res) => {
   try {
     const { title, description, imageUrl, liveUrl, githubUrl, tags } = req.body;
-    if (!title || !description) {
-      return res.status(400).json({ error: 'Title and description required' });
-    }
+    if (!title || !description)
+      return res.status(400).json({ error: "Title and description required" });
 
-    const data = await getData();
-    const projects = data.projects || [];
+    let data = await getData();
 
     const newProject = {
       id: Date.now().toString(),
       title,
       description,
-      imageUrl: imageUrl || 'https://via.placeholder.com/400x200/1a1a1a/ff5e1a?text=Project+Preview',
-      liveUrl: liveUrl || '#',
-      githubUrl: githubUrl || '#',
+      imageUrl:
+        imageUrl ||
+        "https://via.placeholder.com/400x200/1a1a1a/ff5e1a?text=Project+Preview",
+      liveUrl: liveUrl || "#",
+      githubUrl: githubUrl || "#",
       tags: tags || [],
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
     };
 
-    projects.unshift(newProject);
-    data.projects = projects;
+    data.projects.unshift(newProject);
     await saveData(data);
 
     res.status(201).json({ success: true, project: newProject });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Failed to save project' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
 
-// 🌐 CODES
+// ------------------- USERS -------------------
+app.get("/users", async (req, res) => {
+  try {
+    const data = await getData();
+    res.json(data.users || []);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post("/users/signup", async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    if (!username || !password)
+      return res.status(400).json({ error: "Username and password required" });
+
+    let data = await getData();
+
+    if (data.users.find((u) => u.username === username)) {
+      return res.status(400).json({ error: "Username already exists" });
+    }
+
+    const newUser = {
+      id: Date.now().toString(),
+      username,
+      password, // ⚠️ للتجربة فقط
+      createdAt: new Date().toISOString(),
+      role: "user",
+    };
+
+    data.users.push(newUser);
+    await saveData(data);
+
+    res.status(201).json({ success: true, user: newUser });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post("/users/login", async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    const data = await getData();
+
+    const user = data.users.find(
+      (u) => u.username === username && u.password === password
+    );
+    if (!user) return res.status(401).json({ error: "Invalid credentials" });
+
+    res.json({ success: true, user });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ------------------- CODES -------------------
 app.get("/codes", async (req, res) => {
   try {
     const data = await getData();
@@ -94,10 +158,19 @@ app.get("/codes", async (req, res) => {
 app.post("/codes", async (req, res) => {
   try {
     const { title, code } = req.body;
+    if (!title || !code)
+      return res.status(400).json({ error: "Title and code required" });
+
     let data = await getData();
 
-    data.codes = data.codes || [];
-    data.codes.unshift({ title, code, createdAt: new Date().toISOString() });
+    const newCode = {
+      id: Date.now().toString(),
+      title,
+      code,
+      createdAt: new Date().toISOString(),
+    };
+
+    data.codes.unshift(newCode);
     await saveData(data);
 
     res.json({ success: true, codes: data.codes });
@@ -106,74 +179,25 @@ app.post("/codes", async (req, res) => {
   }
 });
 
-// 🌐 USERS
-// ➕ Signup
-app.post("/signup", async (req, res) => {
-  try {
-    const { username, password } = req.body;
-    if (!username || !password) return res.status(400).json({ error: "All fields required" });
-
-    let data = await getData();
-    data.users = data.users || [];
-
-    // check duplicate
-    if (data.users.find(u => u.username === username)) {
-      return res.status(400).json({ error: "Username already exists" });
-    }
-
-    const newUser = {
-      id: Date.now().toString(),
-      username,
-      password, // ⚠️ حطها plain text. ممكن نزيدو hashing ب bcrypt
-      createdAt: new Date().toISOString()
-    };
-
-    data.users.push(newUser);
-    await saveData(data);
-
-    res.json({ success: true, user: { id: newUser.id, username: newUser.username } });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+// ------------------- PAGES -------------------
+app.get("/projects.html", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "projects.html"));
 });
 
-// 🔑 Login
-app.post("/login", async (req, res) => {
-  try {
-    const { username, password } = req.body;
-    if (!username || !password) return res.status(400).json({ error: "All fields required" });
-
-    let data = await getData();
-    const user = (data.users || []).find(u => u.username === username && u.password === password);
-
-    if (!user) return res.status(401).json({ error: "Invalid credentials" });
-
-    res.json({ success: true, user: { id: user.id, username: user.username } });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+app.get("/admin-share-projects.html", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "admin-share-projects.html"));
 });
 
-// 👀 Get all users (مثلا للـ admin)
-app.get("/users", async (req, res) => {
-  try {
-    const data = await getData();
-    res.json(data.users || []);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+app.get("/users.html", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "users.html"));
 });
 
-// 🏠 Serve Pages
-app.get('/projects.html', (req, res) => {
-  res.sendFile(__dirname + '/public/projects.html');
-});
-
-app.get('/admin-share-projects.html', (req, res) => {
-  res.sendFile(__dirname + '/public/admin-share-projects.html');
-});
-
-// 🎉 Start Server
+// ------------------- START -------------------
 app.listen(PORT, () => {
   console.log(`🚀 Server running at http://localhost:${PORT}`);
+  console.log(`👁️  View projects: http://localhost:${PORT}/projects.html`);
+  console.log(
+    `🔐 Admin: http://localhost:${PORT}/admin-share-projects.html`
+  );
+  console.log(`👤 Users: http://localhost:${PORT}/users.html`);
 });
