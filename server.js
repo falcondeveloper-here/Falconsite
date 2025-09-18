@@ -1,114 +1,117 @@
-import express from "express";
-import fetch from "node-fetch";
-import bodyParser from "body-parser";
-import cors from "cors";
-import path from "path";
-import { fileURLToPath } from "url";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// 📁 server.js — NO .env, NO dotenv
+const express = require('express');
+const cors = require('cors');
 
 const app = express();
+const PORT = process.env.PORT || 3000;
+
+// Middleware
 app.use(cors());
-app.use(bodyParser.json());
-app.use(express.static(path.join(__dirname, "public")));
+app.use(express.json());
+app.use(express.static('public'));
 
-// 🔑 إعدادات JSONBin
-const BIN_ID = "68ca8affae596e708ff1abca";
-const API_KEY = "$2a$10$mM1Xopbp8M3zQa74yx4JsO1IK337iMzP1pg3mKJe5nzvjhWlZEHH.";
+// 🔑 HARD CODED JSONBIN CREDENTIALS — REPLACE THESE WITH YOUR OWN
+const BIN_ID = "68ca8affae596e708ff1abca"; // ⚠️ REPLACE THIS
+const API_KEY = "$2a$10$mM1Xopbp8M3zQa74yx4JsO1IK337iMzP1pg3mKJe5nzvjhWlZEHH."; // ⚠️ REPLACE THIS
 
-// 📌 جلب البيانات من JSONBin
-async function getData() {
-  const response = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
-    headers: { "X-Master-Key": API_KEY },
-  });
-  const data = await response.json();
-  return data.record || { users: [], codes: [] };
-}
+const JSONBIN_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
 
-// 📌 حفظ البيانات في JSONBin
-async function saveData(record) {
-  await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      "X-Master-Key": API_KEY,
-    },
-    body: JSON.stringify(record),
-  });
-}
-
-// ✅ SIGNUP
-app.post("/signup", async (req, res) => {
+// 🌐 GET /projects → Fetch all projects
+app.get('/projects', async (req, res) => {
   try {
-    const { username, password } = req.body;
-    let data = await getData();
+    const response = await fetch(JSONBIN_URL, {
+      method: 'GET',
+      headers: {
+        'X-Master-Key': API_KEY,
+        'X-Access-Key': API_KEY
+      }
+    });
 
-    // check if username موجود
-    if (data.users.find((u) => u.username === username)) {
-      return res.status(400).json({ error: "Username already taken" });
+    if (!response.ok) {
+      throw new Error(`JSONBin error: ${response.statusText}`);
     }
 
-    // توليد ID unique
-    const id = "UID-" + Math.floor(Math.random() * 1000000);
-
-    data.users.push({ id, username, password });
-    await saveData(data);
-
-    res.json({ success: true, id, username });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    const data = await response.json();
+    res.json(data.record || []);
+  } catch (error) {
+    console.error('Fetch error:', error);
+    res.status(500).json({ error: 'Failed to load projects' });
   }
 });
 
-// ✅ LOGIN
-app.post("/login", async (req, res) => {
+// ➕ POST /projects → Add new project
+app.post('/projects', async (req, res) => {
   try {
-    const { username, password } = req.body;
-    let data = await getData();
+    const { title, description, imageUrl, liveUrl, githubUrl, tags } = req.body;
 
-    const user = data.users.find(
-      (u) => u.username === username && u.password === password
-    );
-    if (!user) {
-      return res.status(401).json({ error: "Invalid credentials" });
+    if (!title || !description) {
+      return res.status(400).json({ error: 'Title and description required' });
     }
 
-    res.json({ success: true, id: user.id, username: user.username });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    // Fetch current data
+    const currentResponse = await fetch(JSONBIN_URL, {
+      method: 'GET',
+      headers: {
+        'X-Master-Key': API_KEY
+      }
+    });
+
+    if (!currentResponse.ok) {
+      throw new Error('Failed to fetch current data');
+    }
+
+    const currentData = await currentResponse.json();
+    const projects = Array.isArray(currentData.record) ? currentData.record : [];
+
+    // Add new project
+    const newProject = {
+      id: Date.now().toString(),
+      title,
+      description,
+      imageUrl: imageUrl || 'https://via.placeholder.com/400x200/1a1a1a/ff5e1a?text=Project+Preview',
+      liveUrl: liveUrl || '#',
+      githubUrl: githubUrl || '#',
+      tags: tags || [],
+      createdAt: new Date().toISOString()
+    };
+
+    projects.unshift(newProject);
+
+    // Save back to JSONBin
+    const saveResponse = await fetch(JSONBIN_URL, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Master-Key': API_KEY,
+        'X-Access-Key': API_KEY
+      },
+      body: JSON.stringify(projects)
+    });
+
+    if (!saveResponse.ok) {
+      throw new Error('Failed to save to JSONBin');
+    }
+
+    res.status(201).json({ success: true, project: newProject });
+  } catch (error) {
+    console.error('Save error:', error);
+    res.status(500).json({ error: 'Failed to save project' });
   }
 });
 
-// ✅ codes routes متاعك (ما مسستهاش)
-app.get("/codes", async (req, res) => {
-  try {
-    const data = await getData();
-    res.json(data.codes || []);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+// 🏠 Serve Pages
+app.get('/projects.html', (req, res) => {
+  res.sendFile(__dirname + '/public/projects.html');
 });
 
-app.post("/codes", async (req, res) => {
-  try {
-    const { title, code } = req.body;
-    let data = await getData();
-
-    data.codes.unshift({ title, code, createdAt: new Date().toISOString() });
-    await saveData(data);
-
-    res.json({ success: true, codes: data.codes });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+app.get('/admin-share-projects.html', (req, res) => {
+  res.sendFile(__dirname + '/public/admin-share-projects.html');
 });
 
-// ✅ Home
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
+// 🎉 Start Server
+app.listen(PORT, () => {
+  console.log(`🚀 Server running at http://localhost:${PORT}`);
+  console.log(`👁️  View projects: http://localhost:${PORT}/projects.html`);
+  console.log(`🔐 Admin: http://localhost:${PORT}/admin-share-projects.html`);
+  console.log(`⚠️  REMEMBER: Replace BIN_ID and API_KEY in server.js with your JSONBin keys!`);
 });
-
-app.listen(3000, () =>
-  console.log("🚀 Server running on http://localhost:3000")
-);
