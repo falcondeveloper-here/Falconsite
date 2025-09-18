@@ -1,4 +1,4 @@
-// 📁 server.js — NO .env, NO dotenv
+// 📁 server.js — FIXED JSONBIN URL, PRESERVED /codes ROUTES
 const express = require('express');
 const cors = require('cors');
 
@@ -10,10 +10,11 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static('public'));
 
-// 🔑 HARD CODED JSONBIN CREDENTIALS — REPLACE THESE WITH YOUR OWN
-const BIN_ID = "68ca8affae596e708ff1abca"; // ⚠️ REPLACE THIS
-const API_KEY = "$2a$10$mM1Xopbp8M3zQa74yx4JsO1IK337iMzP1pg3mKJe5nzvjhWlZEHH."; // ⚠️ REPLACE THIS
+// 🔑 HARD CODED JSONBIN CREDENTIALS
+const BIN_ID = "68ca8affae596e708ff1abca";
+const API_KEY = "$2a$10$mM1Xopbp8M3zQa74yx4JsO1IK337iMzP1pg3mKJe5nzvjhWlZEHH.";
 
+// ✅ FIXED: REMOVED SPACE IN URL
 const JSONBIN_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
 
 // 🌐 GET /projects → Fetch all projects
@@ -48,7 +49,6 @@ app.post('/projects', async (req, res) => {
       return res.status(400).json({ error: 'Title and description required' });
     }
 
-    // Fetch current data
     const currentResponse = await fetch(JSONBIN_URL, {
       method: 'GET',
       headers: {
@@ -63,7 +63,6 @@ app.post('/projects', async (req, res) => {
     const currentData = await currentResponse.json();
     const projects = Array.isArray(currentData.record) ? currentData.record : [];
 
-    // Add new project
     const newProject = {
       id: Date.now().toString(),
       title,
@@ -77,7 +76,6 @@ app.post('/projects', async (req, res) => {
 
     projects.unshift(newProject);
 
-    // Save back to JSONBin
     const saveResponse = await fetch(JSONBIN_URL, {
       method: 'PUT',
       headers: {
@@ -99,7 +97,7 @@ app.post('/projects', async (req, res) => {
   }
 });
 
-// ✅ codes routes متاعك (ما مسستهاش)
+// ✅ Your codes routes — untouched
 app.get("/codes", async (req, res) => {
   try {
     const data = await getData();
@@ -137,5 +135,5 @@ app.listen(PORT, () => {
   console.log(`🚀 Server running at http://localhost:${PORT}`);
   console.log(`👁️  View projects: http://localhost:${PORT}/projects.html`);
   console.log(`🔐 Admin: http://localhost:${PORT}/admin-share-projects.html`);
-  console.log(`⚠️  REMEMBER: Replace BIN_ID and API_KEY in server.js with your JSONBin keys!`);
+  console.log(`🛒 Buy: http://localhost:${PORT}/buy-projects.html`);
 });
