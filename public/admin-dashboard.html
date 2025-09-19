@@ -923,3 +923,570 @@
       }
     }
   </style>
+    <script>
+    // 🎨 STATE
+    let projects = [];
+    let codes = [];
+    let users = [];
+    let currentSection = 'dashboard';
+
+    // 🎯 INIT
+    document.addEventListener('DOMContentLoaded', async () => {
+      await loadDashboardData();
+      initEventListeners();
+      initChart();
+    });
+
+    // 📥 LOAD ALL DATA
+    async function loadDashboardData() {
+      try {
+        const [projectsRes, codesRes, usersRes] = await Promise.all([
+          fetch('/projects'),
+          fetch('/codes'),
+          fetch('/users')
+        ]);
+
+        projects = await projectsRes.json();
+        codes = await codesRes.json();
+        users = await usersRes.json();
+
+        // Update stats
+        document.getElementById('totalProjects').textContent = projects.length;
+        document.getElementById('totalCodes').textContent = codes.length;
+        document.getElementById('totalUsers').textContent = users.length;
+
+        // Simulate weekly growth
+        const now = new Date();
+        const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+
+        const recentProjects = projects.filter(p => new Date(p.createdAt) > oneWeekAgo).length;
+        const recentCodes = codes.filter(c => new Date(c.createdAt) > oneWeekAgo).length;
+        const recentUsers = users.filter(u => new Date(u.createdAt) > oneWeekAgo).length;
+
+        document.getElementById('projectsChange').textContent = `+${recentProjects}`;
+        document.getElementById('codesChange').textContent = `+${recentCodes}`;
+        document.getElementById('usersChange').textContent = `+${recentUsers}`;
+
+        renderSection(currentSection);
+      } catch (error) {
+        showToast('Failed to load dashboard data', 'error');
+        console.error(error);
+      }
+    }
+
+    // 🖱️ EVENT LISTENERS
+    function initEventListeners() {
+      // Sidebar navigation
+      document.querySelectorAll('.nav-item').forEach(item => {
+        item.addEventListener('click', () => {
+          document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+          item.classList.add('active');
+          currentSection = item.getAttribute('data-section');
+          renderSection(currentSection);
+        });
+      });
+
+      // Refresh button
+      document.getElementById('refreshBtn').addEventListener('click', async () => {
+        showToast('Refreshing data...', 'warning');
+        await loadDashboardData();
+        showToast('Data refreshed successfully', 'success');
+      });
+
+      // Project modal buttons
+      document.getElementById('closeProjectModal').addEventListener('click', () => {
+        document.getElementById('projectModal').classList.remove('show');
+      });
+
+      document.getElementById('cancelProject').addEventListener('click', () => {
+        document.getElementById('projectModal').classList.remove('show');
+      });
+
+      document.getElementById('saveProject').addEventListener('click', saveProject);
+
+      // Code modal buttons
+      document.getElementById('closeCodeModal').addEventListener('click', () => {
+        document.getElementById('codeModal').classList.remove('show');
+      });
+
+      document.getElementById('cancelCode').addEventListener('click', () => {
+        document.getElementById('codeModal').classList.remove('show');
+      });
+
+      document.getElementById('saveCode').addEventListener('click', saveCode);
+
+      // Confirm modal buttons
+      document.getElementById('closeConfirmModal').addEventListener('click', () => {
+        document.getElementById('confirmModal').classList.remove('show');
+      });
+
+      document.getElementById('cancelDelete').addEventListener('click', () => {
+        document.getElementById('confirmModal').classList.remove('show');
+      });
+
+      document.getElementById('confirmDelete').addEventListener('click', confirmDelete);
+
+      // Search inputs
+      document.getElementById('projectSearch').addEventListener('input', () => renderProjectsTable());
+      document.getElementById('codeSearch').addEventListener('input', () => renderCodesTable());
+      document.getElementById('userSearch').addEventListener('input', () => renderUsersTable());
+    }
+
+    // 🖼️ RENDER SECTION
+    function renderSection(section) {
+      // Hide all sections
+      document.getElementById('projectsSection').style.display = 'none';
+      document.getElementById('codesSection').style.display = 'none';
+      document.getElementById('usersSection').style.display = 'none';
+      document.getElementById('settingsSection').style.display = 'none';
+
+      // Show dashboard by default
+      if (section === 'dashboard') {
+        document.querySelector('.stats-container').style.display = 'grid';
+        document.querySelector('.chart-container').style.display = 'block';
+      } else {
+        document.querySelector('.stats-container').style.display = 'none';
+        document.querySelector('.chart-container').style.display = 'none';
+      }
+
+      // Show selected section
+      if (section === 'projects') {
+        document.getElementById('projectsSection').style.display = 'block';
+        renderProjectsTable();
+      } else if (section === 'codes') {
+        document.getElementById('codesSection').style.display = 'block';
+        renderCodesTable();
+      } else if (section === 'users') {
+        document.getElementById('usersSection').style.display = 'block';
+        renderUsersTable();
+      } else if (section === 'settings') {
+        document.getElementById('settingsSection').style.display = 'block';
+      }
+    }
+
+    // 🖼️ RENDER PROJECTS TABLE
+    function renderProjectsTable() {
+      const tbody = document.getElementById('projectsTableBody');
+      tbody.innerHTML = '';
+
+      const searchTerm = document.getElementById('projectSearch').value.toLowerCase();
+
+      const filteredProjects = projects.filter(p => 
+        p.title.toLowerCase().includes(searchTerm) ||
+        (p.tags && p.tags.some(tag => tag.toLowerCase().includes(searchTerm)))
+      );
+
+      filteredProjects.forEach(project => {
+        const tr = document.createElement('tr');
+        const tagsHtml = project.tags && project.tags.length 
+          ? project.tags.map(tag => `<span class="tag">${escapeHtml(tag)}</span>`).join('')
+          : '-';
+
+        tr.innerHTML = `
+          <td>${escapeHtml(project.title)}</td>
+          <td>${tagsHtml}</td>
+          <td>${new Date(project.createdAt).toLocaleDateString()}</td>
+          <td>
+            <button class="action-btn" onclick="editProject('${project.id}')">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="action-btn danger" onclick="showDeleteConfirm('project', '${project.id}', '${escapeHtml(project.title)}')">
+              <i class="fas fa-trash"></i>
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // 🖼️ RENDER CODES TABLE
+    function renderCodesTable() {
+      const tbody = document.getElementById('codesTableBody');
+      tbody.innerHTML = '';
+
+      const searchTerm = document.getElementById('codeSearch').value.toLowerCase();
+
+      const filteredCodes = codes.filter(c => 
+        c.title.toLowerCase().includes(searchTerm)
+      );
+
+      filteredCodes.forEach(code => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${escapeHtml(code.title)}</td>
+          <td>${new Date(code.createdAt).toLocaleDateString()}</td>
+          <td>
+            <button class="action-btn" onclick="editCode('${code.id}')">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="action-btn danger" onclick="showDeleteConfirm('code', '${code.id}', '${escapeHtml(code.title)}')">
+              <i class="fas fa-trash"></i>
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // 👥 RENDER USERS TABLE
+    function renderUsersTable() {
+      const tbody = document.getElementById('usersTableBody');
+      tbody.innerHTML = '';
+
+      const searchTerm = document.getElementById('userSearch').value.toLowerCase();
+
+      const filteredUsers = users.filter(u => 
+        u.username.toLowerCase().includes(searchTerm)
+      );
+
+      filteredUsers.forEach(user => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${escapeHtml(user.username)}</td>
+          <td>${user.role || 'user'}</td>
+          <td>${new Date(user.createdAt).toLocaleDateString()}</td>
+          <td>
+            <button class="action-btn danger" onclick="showDeleteConfirm('user', '${user.id}', '${escapeHtml(user.username)}')">
+              <i class="fas fa-trash"></i>
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // ✏️ EDIT PROJECT
+    function editProject(id) {
+      const project = projects.find(p => p.id === id);
+      if (!project) return;
+
+      document.getElementById('modalTitle').textContent = 'Edit Project';
+      document.getElementById('projectId').value = project.id;
+      document.getElementById('projectTitle').value = project.title || '';
+      document.getElementById('projectDescription').value = project.description || '';
+      document.getElementById('projectImageUrl').value = project.imageUrl || '';
+      document.getElementById('projectLiveUrl').value = project.liveUrl || '';
+      document.getElementById('projectGithubUrl').value = project.githubUrl || '';
+      document.getElementById('projectTags').value = project.tags ? project.tags.join(', ') : '';
+
+      document.getElementById('projectModal').classList.add('show');
+    }
+
+    // ✏️ EDIT CODE
+    function editCode(id) {
+      const code = codes.find(c => c.id === id);
+      if (!code) return;
+
+      document.getElementById('codeModalTitle').textContent = 'Edit Code Snippet';
+      document.getElementById('codeId').value = code.id;
+      document.getElementById('codeTitle').value = code.title || '';
+      document.getElementById('codeContent').value = code.code || '';
+
+      document.getElementById('codeModal').classList.add('show');
+    }
+
+    // 💾 SAVE PROJECT
+    async function saveProject() {
+      const id = document.getElementById('projectId').value;
+      const title = document.getElementById('projectTitle').value.trim();
+      const description = document.getElementById('projectDescription').value.trim();
+      const imageUrl = document.getElementById('projectImageUrl').value.trim();
+      const liveUrl = document.getElementById('projectLiveUrl').value.trim();
+      const githubUrl = document.getElementById('projectGithubUrl').value.trim();
+      const tagsInput = document.getElementById('projectTags').value.trim();
+      const tags = tagsInput ? tagsInput.split(',').map(t => t.trim()).filter(t => t) : [];
+
+      if (!title || !description) {
+        showToast('Title and description are required', 'error');
+        return;
+      }
+
+      const projectData = {
+        title,
+        description,
+        imageUrl: imageUrl || 'https://via.placeholder.com/400x200/1a1a1a/ff5e1a?text=Project+Preview',
+        liveUrl: liveUrl || '#',
+        githubUrl: githubUrl || '#',
+        tags,
+        createdAt: new Date().toISOString()
+      };
+
+      try {
+        let url = '/projects';
+        let method = 'POST';
+
+        if (id) {
+          // Find existing project and update
+          const existingProject = projects.find(p => p.id === id);
+          if (existingProject) {
+            projectData.id = id;
+            projectData.createdAt = existingProject.createdAt;
+          }
+        } else {
+          projectData.id = Date.now().toString();
+        }
+
+        const response = await fetch(url, {
+          method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(projectData)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          document.getElementById('projectModal').classList.remove('show');
+          showToast(id ? 'Project updated successfully' : 'Project added successfully', 'success');
+          await loadDashboardData();
+        } else {
+          showToast('Failed to save project', 'error');
+        }
+      } catch (error) {
+        showToast('Network error', 'error');
+      }
+    }
+
+    // 💾 SAVE CODE
+    async function saveCode() {
+      const id = document.getElementById('codeId').value;
+      const title = document.getElementById('codeTitle').value.trim();
+      const code = document.getElementById('codeContent').value.trim();
+
+      if (!title || !code) {
+        showToast('Title and code are required', 'error');
+        return;
+      }
+
+      const codeData = {
+        title,
+        code,
+        createdAt: new Date().toISOString()
+      };
+
+      try {
+        let url = '/codes';
+        let method = 'POST';
+
+        if (id) {
+          // Find existing code and update
+          const existingCode = codes.find(c => c.id === id);
+          if (existingCode) {
+            codeData.id = id;
+            codeData.createdAt = existingCode.createdAt;
+          }
+        } else {
+          codeData.id = Date.now().toString();
+        }
+
+        const response = await fetch(url, {
+          method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(codeData)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          document.getElementById('codeModal').classList.remove('show');
+          showToast(id ? 'Code snippet updated successfully' : 'Code snippet added successfully', 'success');
+          await loadDashboardData();
+        } else {
+          showToast('Failed to save code snippet', 'error');
+        }
+      } catch (error) {
+        showToast('Network error', 'error');
+      }
+    }
+
+    // 🗑️ SHOW DELETE CONFIRM
+    function showDeleteConfirm(type, id, name) {
+      let message = '';
+      if (type === 'project') {
+        message = `Are you sure you want to delete the project "<strong>${name}</strong>"? This action cannot be undone.`;
+      } else if (type === 'code') {
+        message = `Are you sure you want to delete the code snippet "<strong>${name}</strong>"? This action cannot be undone.`;
+      } else if (type === 'user') {
+        message = `Are you sure you want to delete the user "<strong>${name}</strong>"? This action cannot be undone.`;
+      }
+
+      document.getElementById('confirmMessage').innerHTML = message;
+      document.getElementById('deleteType').value = type;
+      document.getElementById('deleteId').value = id;
+      document.getElementById('confirmModal').classList.add('show');
+    }
+
+    // 🗑️ CONFIRM DELETE
+    async function confirmDelete() {
+      const type = document.getElementById('deleteType').value;
+      const id = document.getElementById('deleteId').value;
+
+      try {
+        let success = false;
+
+        if (type === 'project') {
+          // Filter out project locally (since server doesn't have DELETE endpoint)
+          projects = projects.filter(p => p.id !== id);
+          success = true;
+        } else if (type === 'code') {
+          codes = codes.filter(c => c.id !== id);
+          success = true;
+        } else if (type === 'user') {
+          users = users.filter(u => u.id !== id);
+          success = true;
+        }
+
+        if (success) {
+          document.getElementById('confirmModal').classList.remove('show');
+          showToast(`${capitalizeFirstLetter(type)} deleted successfully`, 'success');
+          
+          // Update stats
+          document.getElementById('totalProjects').textContent = projects.length;
+          document.getElementById('totalCodes').textContent = codes.length;
+          document.getElementById('totalUsers').textContent = users.length;
+
+          // Re-render current section
+          renderSection(currentSection);
+        } else {
+          throw new Error('Deletion failed');
+        }
+      } catch (error) {
+        showToast('Failed to delete item', 'error');
+      }
+    }
+
+    // 📊 CHART INIT
+    let activityChart = null;
+
+    function initChart() {
+      const ctx = document.getElementById('activityChart').getContext('2d');
+      
+      const labels = getChartLabels(7); // Default: 7 days
+      const projectData = generateRandomData(7, 3, 12);
+      const codeData = generateRandomData(7, 2, 8);
+      const userData = generateRandomData(7, 5, 20);
+
+      activityChart = new Chart(ctx, {
+        type: 'line',
+         {
+          labels: labels,
+          datasets: [
+            {
+              label: 'Projects',
+               projectData,
+              borderColor: '#ff5e1a',
+              backgroundColor: 'rgba(255, 94, 26, 0.1)',
+              borderWidth: 3,
+              pointBackgroundColor: '#ff5e1a',
+              pointRadius: 5,
+              fill: true,
+              tension: 0.3
+            },
+            {
+              label: 'Codes',
+               codeData,
+              borderColor: '#43a047',
+              backgroundColor: 'rgba(67, 160, 71, 0.1)',
+              borderWidth: 3,
+              pointBackgroundColor: '#43a047',
+              pointRadius: 5,
+              fill: true,
+              tension: 0.3
+            },
+            {
+              label: 'Users',
+               userData,
+              borderColor: '#2196f3',
+              backgroundColor: 'rgba(33, 150, 243, 0.1)',
+              borderWidth: 3,
+              pointBackgroundColor: '#2196f3',
+              pointRadius: 5,
+              fill: true,
+              tension: 0.3
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              labels: {
+                color: '#f5f5f5',
+                font: {
+                  family: "'Space Grotesk', sans-serif",
+                  size: 14
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              ticks: {
+                color: '#b0b0b0',
+                font: {
+                  family: "'Space Grotesk', sans-serif"
+                }
+              },
+              grid: {
+                color: 'rgba(255, 255, 255, 0.05)'
+              }
+            },
+            y: {
+              ticks: {
+                color: '#b0b0b0',
+                font: {
+                  family: "'Space Grotesk', sans-serif"
+                }
+              },
+              grid: {
+                color: 'rgba(255, 255, 255, 0.05)'
+              },
+              beginAtZero: true
+            }
+          }
+        }
+      });
+
+      // Chart range selector
+      document.getElementById('chartRange').addEventListener('change', function() {
+        const days = parseInt(this.value);
+        const labels = getChartLabels(days);
+        const projectData = generateRandomData(days, 3, 12);
+        const codeData = generateRandomData(days, 2, 8);
+        const userData = generateRandomData(days, 5, 20);
+
+        activityChart.data.labels = labels;
+        activityChart.data.datasets[0].data = projectData;
+        activityChart.data.datasets[1].data = codeData;
+        activityChart.data.datasets[2].data = userData;
+        activityChart.update();
+      });
+    }
+
+    // 🧮 HELPER FUNCTIONS
+    function getChartLabels(days) {
+      const labels = [];
+      const now = new Date();
+      for (let i = days - 1; i >= 0; i--) {
+        const date = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+        labels.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+      }
+      return labels;
+    }
+
+    function generateRandomData(length, min, max) {
+      return Array.from({length}, () => Math.floor(Math.random() * (max - min + 1)) + min);
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function capitalizeFirstLetter(string) {
+      return string.charAt(0).toUpperCase() + string.slice(1);
+    }
+
+    // 🚪 LOGOUT
+    function h
