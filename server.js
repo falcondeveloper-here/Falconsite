@@ -431,6 +431,31 @@ app.delete("/codes/:id", requireAdmin, async (req, res) => {
   }
 });
 
+// ------------------- USER LOGIN -------------------
+app.post("/users/login", async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    const data = await getData();
+
+    const user = data.users.find(
+      (u) => u.username === username && u.password === password
+    );
+    if (!user) return res.status(401).json({ error: "Invalid credentials" });
+
+    // Default role if not set
+    if (!user.role) user.role = "Member";
+
+    const { password: _, ...userWithoutPassword } = user;
+    res.json({ success: true, user: userWithoutPassword });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.get("/users-ranks.html", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "users-ranks.html"));
+});
+
 app.put("/users/:id", requireAdmin, async (req, res) => {
   try {
     const { id } = req.params;
