@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <style>
     :root {
       --bg: #0a0a0a;
@@ -49,6 +50,48 @@
       border-right: 1px solid var(--border);
       display: flex;
       flex-direction: column;
+      transform: translateX(0);
+    }
+
+    /* Mobile Hamburger Menu */
+    .mobile-menu-btn {
+      display: none;
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      z-index: 200;
+      background: var(--accent);
+      color: white;
+      border: none;
+      width: 50px;
+      height: 50px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 1.2rem;
+      box-shadow: 0 4px 15px rgba(255, 94, 26, 0.4);
+      transition: var(--transition);
+    }
+
+    .mobile-menu-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 20px rgba(255, 94, 26, 0.6);
+    }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 99;
+      opacity: 0;
+      transition: var(--transition);
+    }
+
+    .sidebar-overlay.show {
+      opacity: 1;
     }
 
     .sidebar-header {
@@ -288,12 +331,144 @@
       height: 300px;
       position: relative;
     }
+
+    /* 3D Canvas Background */
+    .canvas-background {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      opacity: 0.1;
+      pointer-events: none;
+    }
+
+    /* Floating Animation */
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-20px) rotate(180deg); }
+    }
+
+    .floating-element {
+      animation: float 6s ease-in-out infinite;
+    }
+
+    /* 3D Card Hover Effects */
+    .stat-card {
+      transform-style: preserve-3d;
+      perspective: 1000px;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-10px) rotateX(5deg) rotateY(5deg);
+      box-shadow: 0 25px 50px rgba(255, 94, 26, 0.3);
+    }
+
+    /* Mobile Responsive Design */
+    @media (max-width: 1024px) {
+      .mobile-menu-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .sidebar {
+        transform: translateX(-100%);
+      }
+
+      .sidebar.open {
+        transform: translateX(0);
+      }
+
+      .sidebar-overlay {
+        display: block;
+      }
+
+      .main-content {
+        margin-left: 0;
+        padding: 80px 20px 20px;
+      }
+
+      .stats-container {
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      }
+    }
+
+    @media (max-width: 768px) {
+      .main-content {
+        padding: 80px 15px 15px;
+      }
+
+      .stats-container {
+        grid-template-columns: 1fr;
+      }
+
+      .header-bar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+      }
+
+      .action-buttons {
+        width: 100%;
+        justify-content: stretch;
+      }
+
+      .btn {
+        flex: 1;
+      }
+
+      .table-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 15px;
+      }
+
+      .search-input {
+        width: 100%;
+      }
+
+      .modal {
+        width: 95%;
+        padding: 30px 20px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .stats-container {
+        gap: 15px;
+      }
+
+      .stat-card {
+        padding: 20px;
+      }
+
+      .page-title {
+        font-size: 1.5rem;
+      }
+
+      .chart-container,
+      .table-container {
+        padding: 20px;
+      }
+    }
   </style>
 </head>
 <body>
+  <!-- Mobile Menu Button -->
+  <button class="mobile-menu-btn" id="mobileMenuBtn">
+    <i class="fas fa-bars"></i>
+  </button>
+
+  <!-- Sidebar Overlay -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <!-- 3D Canvas Background -->
+  <canvas class="canvas-background" id="threeCanvas"></canvas>
 
   <!-- 🎨 SIDEBAR -->
-  <div class="sidebar">
+  <div class="sidebar" id="sidebar">
     <div class="sidebar-header">
       <div class="logo">
         <i class="fas fa-fire"></i>
@@ -930,25 +1105,56 @@
     let users = [];
     let currentSection = 'dashboard';
 
-    // 🎯 INIT
-    document.addEventListener('DOMContentLoaded', async () => {
-      await loadDashboardData();
-      initEventListeners();
-      initChart();
-    });
+    // Remove duplicate initialization - consolidated below
+
+    // Admin authentication key (in production, get from secure storage)
+    const ADMIN_KEY = localStorage.getItem('adminKey') || 'admin123';
+    
+    // Store admin key securely 
+    if (!localStorage.getItem('adminKey')) {
+      localStorage.setItem('adminKey', 'admin123');
+    }
+    
+    // Helper function to add admin auth to requests
+    function getAuthHeaders() {
+      return {
+        'Content-Type': 'application/json',
+        'X-Admin-Key': ADMIN_KEY
+      };
+    }
+
+    // Remove getAuthUrl - using headers only for security
 
     // 📥 LOAD ALL DATA
     async function loadDashboardData() {
       try {
-        const [projectsRes, codesRes, usersRes] = await Promise.all([
+        const [projectsRes, codesRes, usersRes, statsRes] = await Promise.all([
           fetch('/projects'),
           fetch('/codes'),
-          fetch('/users')
+          fetch('/users'),
+          fetch('/api/admin/stats', { headers: getAuthHeaders() })
         ]);
 
-        projects = await projectsRes.json();
-        codes = await codesRes.json();
-        users = await usersRes.json();
+        const projectsData = await projectsRes.json();
+        const codesData = await codesRes.json();
+        const usersData = await usersRes.json();
+        const statsData = await statsRes.json();
+
+        // Handle new paginated API responses
+        projects = Array.isArray(projectsData) ? projectsData : (projectsData.projects || []);
+        codes = Array.isArray(codesData) ? codesData : (codesData.codes || []);
+        users = Array.isArray(usersData) ? usersData : (usersData.users || []);
+
+        // Update stats from API
+        if (statsData.totals) {
+          document.getElementById('totalProjects').textContent = statsData.totals.projects;
+          document.getElementById('totalCodes').textContent = statsData.totals.codes;
+          document.getElementById('totalUsers').textContent = statsData.totals.users;
+          
+          document.getElementById('projectsChange').textContent = `+${statsData.recent.projects}`;
+          document.getElementById('codesChange').textContent = `+${statsData.recent.codes}`;
+          document.getElementById('usersChange').textContent = `+${statsData.recent.users}`;
+        }
 
         // Update stats
         document.getElementById('totalProjects').textContent = projects.length;
@@ -1024,7 +1230,7 @@
         document.getElementById('confirmModal').classList.remove('show');
       });
 
-      document.getElementById('confirmDelete').addEventListener('click', confirmDelete);
+      document.getElementById('confirmDelete').addEventListener('click', confirmDelete); and 
 
       // Search inputs
       document.getElementById('projectSearch').addEventListener('input', () => renderProjectsTable());
@@ -1228,7 +1434,7 @@
 
         const response = await fetch(url, {
           method,
-          headers: { 'Content-Type': 'application/json' },
+          headers: getAuthHeaders(),
           body: JSON.stringify(projectData)
         });
 
@@ -1280,7 +1486,7 @@
 
         const response = await fetch(url, {
           method,
-          headers: { 'Content-Type': 'application/json' },
+          headers: getAuthHeaders(),
           body: JSON.stringify(codeData)
         });
 
@@ -1367,12 +1573,12 @@
 
       activityChart = new Chart(ctx, {
         type: 'line',
-         {
+        data: {
           labels: labels,
           datasets: [
             {
               label: 'Projects',
-               projectData,
+              data: projectData,
               borderColor: '#ff5e1a',
               backgroundColor: 'rgba(255, 94, 26, 0.1)',
               borderWidth: 3,
@@ -1383,7 +1589,7 @@
             },
             {
               label: 'Codes',
-               codeData,
+              data: codeData,
               borderColor: '#43a047',
               backgroundColor: 'rgba(67, 160, 71, 0.1)',
               borderWidth: 3,
@@ -1394,7 +1600,7 @@
             },
             {
               label: 'Users',
-               userData,
+              data: userData,
               borderColor: '#2196f3',
               backgroundColor: 'rgba(33, 150, 243, 0.1)',
               borderWidth: 3,
@@ -1463,6 +1669,105 @@
       });
     }
 
+    // 🎮 3D SCENE INITIALIZATION
+    let scene, camera, renderer, particles;
+
+    function init3DScene() {
+      const canvas = document.getElementById('threeCanvas');
+      if (!canvas) return;
+
+      scene = new THREE.Scene();
+      camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+      renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setClearColor(0x000000, 0);
+
+      // Create floating particles
+      const particlesGeometry = new THREE.BufferGeometry();
+      const particlesCount = 100;
+      const posArray = new Float32Array(particlesCount * 3);
+
+      for (let i = 0; i < particlesCount * 3; i++) {
+        posArray[i] = (Math.random() - 0.5) * 20;
+      }
+
+      particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+
+      const particlesMaterial = new THREE.PointsMaterial({
+        size: 0.02,
+        color: 0xff5e1a,
+        transparent: true,
+        opacity: 0.8,
+        blending: THREE.AdditiveBlending
+      });
+
+      particles = new THREE.Points(particlesGeometry, particlesMaterial);
+      scene.add(particles);
+
+      camera.position.z = 5;
+
+      animate3D();
+
+      // Handle window resize
+      window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      });
+    }
+
+    function animate3D() {
+      requestAnimationFrame(animate3D);
+
+      if (particles) {
+        particles.rotation.x += 0.001;
+        particles.rotation.y += 0.002;
+        
+        // Animate individual particles
+        const positions = particles.geometry.attributes.position.array;
+        for (let i = 0; i < positions.length; i += 3) {
+          positions[i + 1] += Math.sin(Date.now() * 0.001 + i) * 0.002;
+        }
+        particles.geometry.attributes.position.needsUpdate = true;
+      }
+
+      renderer.render(scene, camera);
+    }
+
+    // 📱 MOBILE MENU FUNCTIONALITY
+    function initMobileMenu() {
+      const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebarOverlay');
+
+      if (!mobileMenuBtn || !sidebar || !overlay) return;
+
+      function toggleSidebar() {
+        sidebar.classList.toggle('open');
+        overlay.classList.toggle('show');
+        document.body.style.overflow = sidebar.classList.contains('open') ? 'hidden' : '';
+      }
+
+      function closeSidebar() {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('show');
+        document.body.style.overflow = '';
+      }
+
+      mobileMenuBtn.addEventListener('click', toggleSidebar);
+      overlay.addEventListener('click', closeSidebar);
+
+      // Close sidebar when clicking nav items on mobile
+      const navItems = document.querySelectorAll('.nav-item');
+      navItems.forEach(item => {
+        item.addEventListener('click', () => {
+          if (window.innerWidth <= 1024) {
+            setTimeout(closeSidebar, 100);
+          }
+        });
+      });
+    }
+
     // 🧮 HELPER FUNCTIONS
     function getChartLabels(days) {
       const labels = [];
@@ -1488,5 +1793,59 @@
       return string.charAt(0).toUpperCase() + string.slice(1);
     }
 
-    // 🚪 LOGOUT
-    function h
+    // 🚪 LOGOUT FUNCTIONALITY
+    function handleLogout() {
+      if (confirm('Are you sure you want to logout?')) {
+        localStorage.removeItem('adminUser');
+        window.location.href = '/login.html';
+      }
+    }
+
+    // 🎬 ANIMATION EFFECTS
+    function addFloatingAnimations() {
+      const statCards = document.querySelectorAll('.stat-card');
+      statCards.forEach((card, index) => {
+        card.style.animationDelay = `${index * 0.2}s`;
+        card.classList.add('floating-element');
+      });
+    }
+
+    // ⚡ PERFORMANCE: Respect reduced motion preference
+    function respectReducedMotion() {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        // Disable 3D animations and complex effects for users who prefer reduced motion
+        const canvas = document.getElementById('threeCanvas');
+        if (canvas) {
+          canvas.style.display = 'none';
+        }
+        
+        document.querySelectorAll('.floating-element').forEach(el => {
+          el.style.animation = 'none';
+        });
+      }
+    }
+
+    // 🎯 INITIALIZE EVERYTHING
+    document.addEventListener('DOMContentLoaded', async function() {
+      try {
+        respectReducedMotion();
+        initMobileMenu();
+        await loadDashboardData();
+        initChart();
+        addFloatingAnimations();
+        
+        // Initialize 3D scene only if motion is not reduced
+        if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          init3DScene();
+        }
+        
+        renderSection('dashboard');
+      } catch (error) {
+        console.error('Dashboard initialization error:', error);
+        showToast('Failed to initialize dashboard', 'error');
+      }
+    });
+
+  </script>
+</body>
+</html>
