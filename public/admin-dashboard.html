@@ -288,7 +288,297 @@
       height: 300px;
       position: relative;
     }
+  </style>
+</head>
+<body>
 
+  <!-- 🎨 SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <i class="fas fa-fire"></i>
+        <span>StudioHub</span>
+      </div>
+    </div>
+    <div class="nav-menu">
+      <div class="nav-item active" data-section="dashboard">
+        <i class="fas fa-tachometer-alt"></i>
+        <span>Dashboard</span>
+      </div>
+      <div class="nav-item" data-section="projects">
+        <i class="fas fa-project-diagram"></i>
+        <span>Projects</span>
+      </div>
+      <div class="nav-item" data-section="codes">
+        <i class="fas fa-code"></i>
+        <span>Code Snippets</span>
+      </div>
+      <div class="nav-item" data-section="users">
+        <i class="fas fa-users"></i>
+        <span>Users</span>
+      </div>
+      <div class="nav-item" data-section="settings">
+        <i class="fas fa-cog"></i>
+        <span>Settings</span>
+      </div>
+    </div>
+    <div class="sidebar-footer">
+      <div class="user-profile">
+        <div class="avatar">A</div>
+        <div class="user-info">
+          <div class="user-name">Admin User</div>
+          <div class="user-role">Administrator</div>
+        </div>
+        <button class="logout-btn" title="Logout" onclick="handleLogout()">
+          <i class="fas fa-sign-out-alt"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🖥️ MAIN CONTENT -->
+  <div class="main-content">
+    
+    <!-- 🎯 HEADER -->
+    <div class="header-bar">
+      <h1 class="page-title">Admin Dashboard</h1>
+      <div class="action-buttons">
+        <button class="btn btn-outline" id="refreshBtn">
+          <i class="fas fa-sync-alt"></i> Refresh
+        </button>
+      </div>
+    </div>
+
+    <!-- 📊 STATS -->
+    <div class="stats-container">
+      <div class="stat-card">
+        <div class="stat-title">Total Projects</div>
+        <div class="stat-value" id="totalProjects">0</div>
+        <div class="stat-change up">
+          <i class="fas fa-arrow-up"></i> <span id="projectsChange">+0</span> this week
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title">Code Snippets</div>
+        <div class="stat-value" id="totalCodes">0</div>
+        <div class="stat-change up">
+          <i class="fas fa-arrow-up"></i> <span id="codesChange">+0</span> this week
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title">Registered Users</div>
+        <div class="stat-value" id="totalUsers">0</div>
+        <div class="stat-change up">
+          <i class="fas fa-arrow-up"></i> <span id="usersChange">+0</span> this week
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title">Server Status</div>
+        <div class="stat-value">Online</div>
+        <div class="stat-change up">
+          <i class="fas fa-check-circle"></i> All systems operational
+        </div>
+      </div>
+    </div>
+
+    <!-- 📈 CHART -->
+    <div class="chart-container">
+      <div class="chart-header">
+        <h2 class="chart-title">Activity Overview</h2>
+        <div class="chart-actions">
+          <select class="form-control" id="chartRange" style="width: auto; padding: 8px 12px; background: var(--input-bg); color: var(--text); border: 1px solid var(--border); border-radius: 8px;">
+            <option value="7">Last 7 Days</option>
+            <option value="30">Last 30 Days</option>
+            <option value="90">Last 90 Days</option>
+          </select>
+        </div>
+      </div>
+      <div class="chart-box">
+        <canvas id="activityChart"></canvas>
+      </div>
+    </div>
+    
+        <!-- 📋 PROJECTS TABLE SECTION -->
+    <div class="table-container" id="projectsSection" style="display: none;">
+      <div class="table-header">
+        <h2>Manage Projects</h2>
+        <div class="search-box">
+          <i class="fas fa-search search-icon"></i>
+          <input type="text" class="search-input" id="projectSearch" placeholder="Search projects...">
+        </div>
+      </div>
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Tags</th>
+              <th>Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="projectsTableBody">
+            <!-- Filled dynamically -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 📋 CODES TABLE SECTION -->
+    <div class="table-container" id="codesSection" style="display: none;">
+      <div class="table-header">
+        <h2>Manage Code Snippets</h2>
+        <div class="search-box">
+          <i class="fas fa-search search-icon"></i>
+          <input type="text" class="search-input" id="codeSearch" placeholder="Search codes...">
+        </div>
+      </div>
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="codesTableBody">
+            <!-- Filled dynamically -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 👥 USERS TABLE SECTION -->
+    <div class="table-container" id="usersSection" style="display: none;">
+      <div class="table-header">
+        <h2>Manage Users</h2>
+        <div class="search-box">
+          <i class="fas fa-search search-icon"></i>
+          <input type="text" class="search-input" id="userSearch" placeholder="Search users...">
+        </div>
+      </div>
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>Username</th>
+              <th>Role</th>
+              <th>Registered</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="usersTableBody">
+            <!-- Filled dynamically -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ⚙️ SETTINGS SECTION -->
+    <div class="table-container" id="settingsSection" style="display: none;">
+      <div class="chart-header">
+        <h2 class="chart-title">Admin Settings</h2>
+      </div>
+      <div style="padding: 30px; text-align: center; color: var(--text-secondary);">
+        <i class="fas fa-wrench" style="font-size: 4rem; margin-bottom: 20px; color: var(--accent);"></i>
+        <h3>Settings Panel</h3>
+        <p>Configure your admin preferences, API keys, and system settings here.</p>
+        <button class="btn btn-primary" style="margin-top: 20px;">
+          <i class="fas fa-cog"></i> Open Settings
+        </button>
+      </div>
+    </div>
+
+    <!-- 🎨 MODALS -->
+    <div class="modal-backdrop" id="projectModal">
+      <div class="modal">
+        <div class="modal-header">
+          <h3 class="modal-title" id="modalTitle">Add New Project</h3>
+          <button class="close-modal" id="closeProjectModal">&times;</button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="projectId">
+          <div class="form-group">
+            <label class="form-label">Project Title *</label>
+            <input type="text" id="projectTitle" class="form-control" placeholder="Project title" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Description *</label>
+            <textarea id="projectDescription" class="form-control" placeholder="Project description" required></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Image URL</label>
+            <input type="url" id="projectImageUrl" class="form-control" placeholder="https://example.com/image.jpg">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Live URL</label>
+            <input type="url" id="projectLiveUrl" class="form-control" placeholder="https://yourproject.com">
+          </div>
+          <div class="form-group">
+            <label class="form-label">GitHub URL</label>
+            <input type="url" id="projectGithubUrl" class="form-control" placeholder="https://github.com/your/project">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Tags</label>
+            <input type="text" id="projectTags" class="form-control" placeholder="react, javascript, frontend">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-cancel" id="cancelProject">Cancel</button>
+          <button class="btn btn-save" id="saveProject">Save Project</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-backdrop" id="codeModal">
+      <div class="modal">
+        <div class="modal-header">
+          <h3 class="modal-title" id="codeModalTitle">Add New Code Snippet</h3>
+          <button class="close-modal" id="closeCodeModal">&times;</button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="codeId">
+          <div class="form-group">
+            <label class="form-label">Snippet Title *</label>
+            <input type="text" id="codeTitle" class="form-control" placeholder="Code title" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Code *</label>
+            <textarea id="codeContent" class="form-control" placeholder="Paste your code here..." required rows="8"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-cancel" id="cancelCode">Cancel</button>
+          <button class="btn btn-save" id="saveCode">Save Code</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-backdrop" id="confirmModal">
+      <div class="modal" style="max-width: 400px;">
+        <div class="modal-header">
+          <h3 class="modal-title">Confirm Delete</h3>
+          <button class="close-modal" id="closeConfirmModal">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p id="confirmMessage">Are you sure you want to delete this item? This action cannot be undone.</p>
+          <input type="hidden" id="deleteType">
+          <input type="hidden" id="deleteId">
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-cancel" id="cancelDelete">Cancel</button>
+          <button class="btn btn-danger" id="confirmDelete">Delete</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 💬 TOASTS -->
+    <div class="toast-container" id="toastContainer"></div>
+
+  </div>
+
+  <style>
     /* 📋 TABLES */
     .table-container {
       background: var(--card-bg);
@@ -363,6 +653,9 @@
       border-radius: 20px;
       font-size: 0.8rem;
       font-weight: 600;
+      margin-right: 6px;
+      margin-bottom: 6px;
+      display: inline-block;
     }
 
     .action-btn {
@@ -374,6 +667,7 @@
       padding: 6px;
       border-radius: 6px;
       transition: var(--transition);
+      margin-right: 6px;
     }
 
     .action-btn:hover {
@@ -496,11 +790,46 @@
     .btn-cancel {
       background: #333;
       color: white;
+      padding: 10px 24px;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: var(--transition);
+    }
+
+    .btn-cancel:hover {
+      background: #444;
     }
 
     .btn-save {
       background: var(--accent);
       color: white;
+      padding: 10px 24px;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: var(--transition);
+    }
+
+    .btn-save:hover {
+      background: var(--accent-light);
+    }
+
+    .btn-danger {
+      background: #e53935;
+      color: white;
+      padding: 10px 24px;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: var(--transition);
+    }
+
+    .btn-danger:hover {
+      background: #c62828;
     }
 
     /* 💬 TOAST NOTIFICATIONS */
@@ -586,9 +915,6 @@
       .stats-container {
         grid-template-columns: 1fr;
       }
-    }
-
-    @media (max-width: 480px) {
       .action-buttons {
         flex-direction: column;
       }
@@ -597,522 +923,3 @@
       }
     }
   </style>
-</head>
-<body>
-
-  <!-- 🎨 SIDEBAR -->
-  <div class="sidebar">
-    <div class="sidebar-header">
-      <div class="logo">
-        <i class="fas fa-fire"></i>
-        <span>StudioHub</span>
-      </div>
-    </div>
-    <div class="nav-menu">
-      <div class="nav-item active" data-target="dashboard">
-        <i class="fas fa-tachometer-alt"></i>
-        <span>Dashboard</span>
-      </div>
-      <div class="nav-item" data-target="projects">
-        <i class="fas fa-project-diagram"></i>
-        <span>Projects</span>
-      </div>
-      <div class="nav-item" data-target="codes">
-        <i class="fas fa-code"></i>
-        <span>Code Snippets</span>
-      </div>
-      <div class="nav-item" data-target="analytics">
-        <i class="fas fa-chart-line"></i>
-        <span>Analytics</span>
-      </div>
-      <div class="nav-item" data-target="settings">
-        <i class="fas fa-cog"></i>
-        <span>Settings</span>
-      </div>
-    </div>
-    <div class="sidebar-footer">
-      <div class="user-profile">
-        <div class="avatar">A</div>
-        <div class="user-info">
-          <div class="user-name">Admin User</div>
-          <div class="user-role">Administrator</div>
-        </div>
-        <button class="logout-btn" title="Logout">
-          <i class="fas fa-sign-out-alt"></i>
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- 🖥️ MAIN CONTENT -->
-  <div class="main-content">
-    
-    <!-- 🎯 HEADER -->
-    <div class="header-bar">
-      <h1 class="page-title">Admin Dashboard</h1>
-      <div class="action-buttons">
-        <button class="btn btn-outline" id="refreshBtn">
-          <i class="fas fa-sync-alt"></i> Refresh
-        </button>
-        <button class="btn btn-primary" id="addProjectBtn">
-          <i class="fas fa-plus"></i> Add Project
-        </button>
-      </div>
-    </div>
-
-    <!-- 📊 STATS -->
-    <div class="stats-container">
-      <div class="stat-card">
-        <div class="stat-title">Total Projects</div>
-        <div class="stat-value" id="totalProjects">0</div>
-        <div class="stat-change up">
-          <i class="fas fa-arrow-up"></i> 12% from last month
-        </div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-title">Code Snippets</div>
-        <div class="stat-value" id="totalCodes">0</div>
-        <div class="stat-change up">
-          <i class="fas fa-arrow-up"></i> 8% from last month
-        </div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-title">Active Users</div>
-        <div class="stat-value">1,247</div>
-        <div class="stat-change down">
-          <i class="fas fa-arrow-down"></i> 3% from last week
-        </div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-title">Server Status</div>
-        <div class="stat-value">Online</div>
-        <div class="stat-change up">
-          <i class="fas fa-check-circle"></i> All systems operational
-        </div>
-      </div>
-    </div>
-
-    <!-- 📈 CHART -->
-    <div class="chart-container">
-      <div class="chart-header">
-        <h2 class="chart-title">Projects Growth</h2>
-        <div class="chart-actions">
-          <select class="form-control" style="width: auto; padding: 8px 12px;">
-            <option>Last 7 Days</option>
-            <option>Last 30 Days</option>
-            <option>Last 90 Days</option>
-          </select>
-        </div>
-      </div>
-      <div class="chart-box">
-        <canvas id="projectsChart"></canvas>
-      </div>
-    </div>
-
-    <!-- 📋 PROJECTS TABLE -->
-    <div class="table-container">
-      <div class="table-header">
-        <h2>Recent Projects</h2>
-        <div class="search-box">
-          <i class="fas fa-search search-icon"></i>
-          <input type="text" class="search-input" id="projectSearch" placeholder="Search projects...">
-        </div>
-      </div>
-      <div class="table-responsive">
-        <table id="projectsTable">
-          <thead>
-            <tr>
-              <th>Title</th>
-              <th>Tags</th>
-              <th>Date</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="projectsTableBody">
-            <!-- Dynamically filled -->
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- 🎨 MODALS -->
-    <div class="modal-backdrop" id="projectModal">
-      <div class="modal">
-        <div class="modal-header">
-          <h3 class="modal-title" id="modalTitle">Add New Project</h3>
-          <button class="close-modal" id="closeProjectModal">&times;</button>
-        </div>
-        <div class="modal-body">
-          <input type="hidden" id="projectId">
-          <div class="form-group">
-            <label class="form-label">Project Title *</label>
-            <input type="text" id="projectTitle" class="form-control" placeholder="Project title" required>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Description *</label>
-            <textarea id="projectDescription" class="form-control" placeholder="Project description" required></textarea>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Image URL</label>
-            <input type="url" id="projectImageUrl" class="form-control" placeholder="https://example.com/image.jpg">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Live URL</label>
-            <input type="url" id="projectLiveUrl" class="form-control" placeholder="https://yourproject.com">
-          </div>
-          <div class="form-group">
-            <label class="form-label">GitHub URL</label>
-            <input type="url" id="projectGithubUrl" class="form-control" placeholder="https://github.com/your/project">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Tags</label>
-            <input type="text" id="projectTags" class="form-control" placeholder="react, javascript, frontend">
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button class="btn btn-cancel" id="cancelProject">Cancel</button>
-          <button class="btn btn-save" id="saveProject">Save Project</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="modal-backdrop" id="confirmModal">
-      <div class="modal" style="max-width: 400px;">
-        <div class="modal-header">
-          <h3 class="modal-title">Confirm Delete</h3>
-          <button class="close-modal" id="closeConfirmModal">&times;</button>
-        </div>
-        <div class="modal-body">
-          <p>Are you sure you want to delete this project? This action cannot be undone.</p>
-          <input type="hidden" id="deleteProjectId">
-        </div>
-        <div class="modal-footer">
-          <button class="btn btn-cancel" id="cancelDelete">Cancel</button>
-          <button class="btn btn-danger" id="confirmDelete">Delete</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- 💬 TOASTS -->
-    <div class="toast-container" id="toastContainer"></div>
-
-  </div>
-
-  <script>
-    // 🎨 STATE
-    let projects = [];
-    let codes = [];
-
-    // 🎯 INIT
-    document.addEventListener('DOMContentLoaded', async () => {
-      await loadDashboardData();
-      initEventListeners();
-      initChart();
-    });
-
-    // 📥 LOAD DATA
-    async function loadDashboardData() {
-      try {
-        const [projectsRes, codesRes] = await Promise.all([
-          fetch('/projects'),
-          fetch('/codes')
-        ]);
-
-        projects = await projectsRes.json();
-        codes = await codesRes.json();
-
-        document.getElementById('totalProjects').textContent = projects.length;
-        document.getElementById('totalCodes').textContent = codes.length;
-
-        renderProjectsTable();
-      } catch (error) {
-        showToast('Failed to load dashboard data', 'error');
-      }
-    }
-
-    // 🖼️ RENDER PROJECTS TABLE
-    function renderProjectsTable() {
-      const tbody = document.getElementById('projectsTableBody');
-      tbody.innerHTML = '';
-
-      const searchTerm = document.getElementById('projectSearch').value.toLowerCase();
-
-      const filteredProjects = projects.filter(p => 
-        p.title.toLowerCase().includes(searchTerm) ||
-        (p.tags && p.tags.join(' ').toLowerCase().includes(searchTerm))
-      );
-
-      filteredProjects.forEach(project => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${project.title}</td>
-          <td>
-            ${project.tags && project.tags.length ? project.tags.map(tag => `<span class="tag">${tag}</span>`).join(' ') : '-'}
-          </td>
-          <td>${new Date(project.createdAt).toLocaleDateString()}</td>
-          <td>
-            <button class="action-btn" onclick="editProject('${project.id}')">
-              <i class="fas fa-edit"></i>
-            </button>
-            <button class="action-btn danger" onclick="showDeleteConfirm('${project.id}')">
-              <i class="fas fa-trash"></i>
-            </button>
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
-
-    // 🎨 EVENT LISTENERS
-    function initEventListeners() {
-      // Sidebar navigation
-      document.querySelectorAll('.nav-item').forEach(item => {
-        item.addEventListener('click', () => {
-          document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-          item.classList.add('active');
-          // Here you would show/hide sections based on data-target
-        });
-      });
-
-      // Search
-      document.getElementById('projectSearch').addEventListener('input', renderProjectsTable);
-      
-      // Add Project
-      document.getElementById('addProjectBtn').addEventListener('click', () => {
-        document.getElementById('modalTitle').textContent = 'Add New Project';
-        document.getElementById('projectId').value = '';
-        document.getElementById('projectTitle').value = '';
-        document.getElementById('projectDescription').value = '';
-        document.getElementById('projectImageUrl').value = '';
-        document.getElementById('projectLiveUrl').value = '';
-        document.getElementById('projectGithubUrl').value = '';
-        document.getElementById('projectTags').value = '';
-        document.getElementById('projectModal').classList.add('show');
-      });
-
-      // Close modals
-      document.getElementById('closeProjectModal').addEventListener('click', () => {
-        document.getElementById('projectModal').classList.remove('show');
-      });
-
-      document.getElementById('closeConfirmModal').addEventListener('click', () => {
-        document.getElementById('confirmModal').classList.remove('show');
-      });
-
-      document.getElementById('cancelProject').addEventListener('click', () => {
-        document.getElementById('projectModal').classList.remove('show');
-      });
-
-      document.getElementById('cancelDelete').addEventListener('click', () => {
-        document.getElementById('confirmModal').classList.remove('show');
-      });
-
-      // Save Project
-      document.getElementById('saveProject').addEventListener('click', saveProject);
-
-      // Confirm Delete
-      document.getElementById('confirmDelete').addEventListener('click', deleteProject);
-
-      // Refresh
-      document.getElementById('refreshBtn').addEventListener('click', async () => {
-        showToast('Refreshing data...', 'warning');
-        await loadDashboardData();
-        showToast('Data refreshed successfully', 'success');
-      });
-    }
-
-    // ✏️ EDIT PROJECT
-    function editProject(id) {
-      const project = projects.find(p => p.id === id);
-      if (!project) return;
-
-      document.getElementById('modalTitle').textContent = 'Edit Project';
-      document.getElementById('projectId').value = project.id;
-      document.getElementById('projectTitle').value = project.title;
-      document.getElementById('projectDescription').value = project.description;
-      document.getElementById('projectImageUrl').value = project.imageUrl || '';
-      document.getElementById('projectLiveUrl').value = project.liveUrl || '';
-      document.getElementById('projectGithubUrl').value = project.githubUrl || '';
-      document.getElementById('projectTags').value = project.tags ? project.tags.join(', ') : '';
-
-      document.getElementById('projectModal').classList.add('show');
-    }
-
-    // 💾 SAVE PROJECT
-    async function saveProject() {
-      const id = document.getElementById('projectId').value;
-      const title = document.getElementById('projectTitle').value.trim();
-      const description = document.getElementById('projectDescription').value.trim();
-      const imageUrl = document.getElementById('projectImageUrl').value.trim();
-      const liveUrl = document.getElementById('projectLiveUrl').value.trim();
-      const githubUrl = document.getElementById('projectGithubUrl').value.trim();
-      const tagsInput = document.getElementById('projectTags').value.trim();
-      const tags = tagsInput ? tagsInput.split(',').map(t => t.trim()).filter(t => t) : [];
-
-      if (!title || !description) {
-        showToast('Title and description are required', 'error');
-        return;
-      }
-
-      const projectData = {
-        title,
-        description,
-        imageUrl: imageUrl || 'https://via.placeholder.com/400x200/1a1a1a/ff5e1a?text=Project+Preview',
-        liveUrl: liveUrl || '#',
-        githubUrl: githubUrl || '#',
-        tags
-      };
-
-      try {
-        let url = '/projects';
-        let method = 'POST';
-
-        if (id) {
-          // For edit - you'd need a PUT endpoint in your server
-          // For now, we'll just add as new since your server doesn't support edit
-          projectData.id = id;
-          projectData.createdAt = projects.find(p => p.id === id)?.createdAt || new Date().toISOString();
-        }
-
-        const response = await fetch(url, {
-          method,
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(projectData)
-        });
-
-        const result = await response.json();
-
-        if (result.success) {
-          document.getElementById('projectModal').classList.remove('show');
-          showToast(id ? 'Project updated successfully' : 'Project added successfully', 'success');
-          await loadDashboardData();
-        } else {
-          showToast('Failed to save project', 'error');
-        }
-      } catch (error) {
-        showToast('Network error', 'error');
-      }
-    }
-
-    // 🗑️ DELETE CONFIRM
-    function showDeleteConfirm(id) {
-      document.getElementById('deleteProjectId').value = id;
-      document.getElementById('confirmModal').classList.add('show');
-    }
-
-    // 🗑️ DELETE PROJECT
-    async function deleteProject() {
-      const id = document.getElementById('deleteProjectId').value;
-      
-      // Since your server doesn't have a DELETE endpoint,
-      // we'll simulate by filtering out locally and showing success
-      // In real app, you'd call DELETE /projects/:id
-
-      try {
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1000));
-
-        projects = projects.filter(p => p.id !== id);
-        document.getElementById('confirmModal').classList.remove('show');
-        showToast('Project deleted successfully', 'success');
-        renderProjectsTable();
-        document.getElementById('totalProjects').textContent = projects.length;
-      } catch (error) {
-        showToast('Failed to delete project', 'error');
-      }
-    }
-
-    // 📊 CHART
-    function initChart() {
-      const ctx = document.getElementById('projectsChart').getContext('2d');
-      
-      // Generate sample data for last 7 days
-      const labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-      const data = Array.from({length: 7}, () => Math.floor(Math.random() * 10) + 5);
-
-      new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: labels,
-          datasets: [{
-            label: 'New Projects',
-            data: data,
-            borderColor: '#ff5e1a',
-            backgroundColor: 'rgba(255, 94, 26, 0.1)',
-            borderWidth: 3,
-            pointBackgroundColor: '#ff5e1a',
-            pointRadius: 5,
-            fill: true,
-            tension: 0.3
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              labels: {
-                color: '#f5f5f5',
-                font: {
-                  family: "'Space Grotesk', sans-serif",
-                  size: 14
-                }
-              }
-            }
-          },
-          scales: {
-            x: {
-              ticks: {
-                color: '#b0b0b0',
-                font: {
-                  family: "'Space Grotesk', sans-serif"
-                }
-              },
-              grid: {
-                color: 'rgba(255, 255, 255, 0.05)'
-              }
-            },
-            y: {
-              ticks: {
-                color: '#b0b0b0',
-                font: {
-                  family: "'Space Grotesk', sans-serif"
-                }
-              },
-              grid: {
-                color: 'rgba(255, 255, 255, 0.05)'
-              },
-              beginAtZero: true
-            }
-          }
-        }
-      });
-    }
-
-    // 💬 TOASTS
-    function showToast(message, type = 'info') {
-      const toastContainer = document.getElementById('toastContainer');
-      const toast = document.createElement('div');
-      toast.className = `toast ${type}`;
-      toast.innerHTML = `
-        <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-exclamation-triangle'} toast-icon"></i>
-        ${message}
-      `;
-      toastContainer.appendChild(toast);
-      
-      setTimeout(() => {
-        toast.classList.add('show');
-      }, 100);
-      
-      setTimeout(() => {
-        toast.classList.remove('show');
-        setTimeout(() => {
-          if (toast.parentNode) {
-            toast.parentNode.removeChild(toast);
-          }
-        }, 300);
-      }, 3000);
-    }
-  </script>
-</body>
-</html>
