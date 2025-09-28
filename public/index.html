@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tunisia HardLife - Home</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: url('https://i.ibb.co/sJy75GYp/a-7d8b2780628c35708d9bcb665d1b2a6d-jpg.jpg') center/cover fixed no-repeat;
+      color: #fff;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      overflow-x: hidden;
+    }
+    /* Navbar */
+    .nav {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      background: rgba(11, 15, 25, 0.95);
+      backdrop-filter: blur(10px);
+      z-index: 1000;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(139, 92, 246, 0.3);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .brand img { height: 40px; width: auto; }
+    .name { font-size: 1.5rem; font-weight: bold; color: #8b5cf6; text-shadow: 0 0 8px #8b5cf6; }
+    .menu-toggle { display: none; background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer; }
+    .menu {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+    }
+    .menu a {
+      color: #fff;
+      text-decoration: none;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      opacity: 0.8;
+    }
+    .menu a:hover, .menu a.btn-login {
+      color: #8b5cf6;
+      background: rgba(139, 92, 246, 0.2);
+      opacity: 1;
+      box-shadow: 0 0 10px rgba(139, 92, 246, 0.5);
+    }
+    /* Hero */
+    .hero {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 0 2rem;
+    }
+    .hero h1 {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+      color: #8b5cf6;
+      text-shadow: 0 0 20px #8b5cf6;
+    }
+    .hero p { font-size: 1.5rem; opacity: 0.9; margin-bottom: 2rem; }
+    /* Cards */
+    .cards-container {
+      padding: 4rem 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+    }
+    .card {
+      background: rgba(11, 15, 25, 0.8);
+      border-radius: 16px;
+      padding: 2rem;
+      text-align: center;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      border: 1px solid rgba(139, 92, 246, 0.3);
+      opacity: 0;
+      transform: translateY(50px);
+    }
+    .card.in { opacity: 1; transform: translateY(0); }
+    .card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 20px 40px rgba(139, 92, 246, 0.3);
+    }
+    .card h3 { color: #8b5cf6; margin-bottom: 1rem; font-size: 1.5rem; }
+    .card p { opacity: 0.8; margin-bottom: 1.5rem; }
+    .card button {
+      background: linear-gradient(135deg, #8b5cf6, #a855f7);
+      border: none;
+      color: #fff;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: filter 0.3s ease;
+    }
+    .card button:hover { filter: brightness(1.1); }
+    /* Responsive */
+    @media (max-width: 980px) {
+      .menu { display: none; position: absolute; top: 100%; left: 0; width: 100%; background: rgba(11, 15, 25, 0.98); flex-direction: column; padding: 1rem; gap: 1rem; }
+      .menu.open { display: flex; }
+      .menu-toggle { display: block; }
+    }
+    /* Scroll Reveal */
+    .reveal { opacity: 0; transform: translateY(30px); transition: all 0.6s ease; }
+    .reveal.in { opacity: 1; transform: translateY(0); }
+  </style>
+</head>
+<body>
+  <header class="nav" role="banner">
+    <div class="brand">
+      <img src="https://i.ibb.co/sJy75GYp/a-7d8b2780628c35708d9bcb665d1b2a6d-jpg.jpg" alt="Tunisia HardLife Logo" />
+      <span class="name">Tunisia HardLife</span>
+    </div>
+    <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">☰</button>
+    <nav class="menu" id="menu" role="navigation">
+      <a href="#home">Home</a>
+      <a href="#aboutus">Aboutus</a>
+      <a href="stats.html">Stats</a>
+      <a href="#announces">Announces</a>
+      <a href="#patchnotes">PatchNotes</a>
+      <a href="#legalside">LegalSide</a>
+      <a href="illegalside.html">IllegalSide</a>
+      <a href="#applications">Applications</a>
+      <a href="#join">Join</a>
+      <a class="btn-login" href="login.html">Login</a>
+    </nav>
+  </header>
+
+  <section class="hero" id="home">
+    <h1>Welcome to Tunisia HardLife</h1>
+    <p>Experience the ultimate roleplay adventure in Tunisia.</p>
+    <!-- Placeholder for 3D model or animation -->
+    <div style="width: 400px; height: 300px; background: rgba(139,92,246,0.1); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin-top: 2rem;">
+      <p>Whitelisted</p>
+    </div>
+  </section>
+
+  <section class="cards-container">
+    <div class="card reveal">
+      <h3>Legal Factions</h3>
+      <p>Join police, EMS, or government roles to maintain order.</p>
+      <button onclick="location.href='#legalside'">Explore</button>
+    </div>
+    <div class="card reveal">
+      <h3>Illegal Operations</h3>
+      <p>Dive into the underworld with gangs and mafias.</p>
+      <button onclick="location.href='illegalside.html'">Join Now</button>
+    </div>
+    <div class="card reveal">
+      <h3>Applications</h3>
+      <p>Apply for staff, helper, or faction roles.</p>
+      <button onclick="location.href='#applications'">Apply</button>
+    </div>
+  </section>
+
+  <script>
+    // Menu Toggle
+    const menuToggle = document.getElementById('menuToggle');
+    const menu = document.getElementById('menu');
+    menuToggle.addEventListener('click', () => menu.classList.toggle('open'));
+    document.addEventListener('click', e => {
+      if (!menu.contains(e.target) && !menuToggle.contains(e.target)) menu.classList.remove('open');
+    });
+    menu.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => { if (window.innerWidth < 981) menu.classList.remove('open'); });
+    });
+
+    // Scroll Reveal
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('in'); });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    // Set current year (if needed elsewhere)
+    document.getElementById('year') ? document.getElementById('year').textContent = new Date().getFullYear() : null;
+  </script>
+</body>
+</html>
